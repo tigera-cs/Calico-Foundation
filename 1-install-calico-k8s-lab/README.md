@@ -44,11 +44,10 @@ kubectl get nodes
 ```
 
 ```
-$ kubectl get nodes
-NAME                                         STATUS   ROLES                  AGE     VERSION
-ip-10-0-1-20.ca-central-1.compute.internal   NotReady    control-plane,master   4h33m   v1.21.7
-ip-10-0-1-30.ca-central-1.compute.internal   NotReady    worker                 4h33m   v1.21.7
-ip-10-0-1-31.ca-central-1.compute.internal   NotReady    worker                 4h33m   v1.21.7
+NAME                                      STATUS   ROLES                  AGE   VERSION
+ip-10-0-1-20.eu-west-1.compute.internal   NotReady    control-plane,master   95m   v1.21.7
+ip-10-0-1-30.eu-west-1.compute.internal   NotReady    worker                 94m   v1.21.7
+ip-10-0-1-31.eu-west-1.compute.internal   NotReady    worker                 94m   v1.21.7
 ```
 
 Calico will be the networking (CNI) and network policy provider throughout your training lab. To install Calico, we will use Calico operator, which provides a well-defined API for how you can install, configure, and run Calico.\

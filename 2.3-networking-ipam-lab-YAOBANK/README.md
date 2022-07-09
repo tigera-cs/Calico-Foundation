@@ -9,57 +9,58 @@ In this lab, you will:
 
 ### Check existing IPPools and create new IPPools 
 
-Verify that the existing ippool.
+Check the IPPools that exist in the cluster. You should see two IPPools, one (default-ipv4-ippool) was created at the cluster creation time using the Installation resource and the other (external-pool) was created in the previous lab as part of checking pod's external connectivity exercise.
 
 ```
-kubectl get ippool -o yaml
+kubectl get ippools.projectcalico.org
 ```
-
+You should receive an output similar to the following.
 ```
-apiVersion: v1
-items:
-- apiVersion: crd.projectcalico.org/v1
-  kind: IPPool
-    name: default-ipv4-ippool
-  spec:
-    blockSize: 26
-    cidr: 10.48.0.0/16
-    ipipMode: Never
-    natOutgoing: true
-    nodeSelector: all()
-    vxlanMode: Never
+NAME                  CREATED AT
+default-ipv4-ippool   2022-07-09T17:44:37Z
+external-pool         2022-07-09T20:02:25Z
 ```
-We have extracted the relevant information here. You can see from the output that the default pool range is 10.48.0.0/24, which is actually the Calico - Initial default IP Pool range of our k8s cluster.
-Note the relevant information in the manifest:
-
-* blockSize: used by Calico IPAM to efficiently assign ad BGP advertize ip addresses in blocks. 
-* ipipMode/vxlanMode: to allow or disable ipip and vxlan overlay. options are never, always and crosssubnet
-
-To create new ippools that fall under the k8s cluster CIDR and do not overlap, we should first delete the default ippool and subnet into smaller ippools.
-
-Use the following command to delete the default ippool.
+Let's check the details of the `default-ipv4-ippool` and get familiar with some configuration parameters in the IPPool.
 
 ```
-kubectl delete ippool default-ipv4-ippool
-
+kubectl get ippool default-ipv4-ippool -o yaml
 ```
-
-Examine the content of the manifest 2.3-ippools.yaml
 
 ```
 apiVersion: projectcalico.org/v3
 kind: IPPool
 metadata:
-  name: pool1-ipv4-ippool
+  creationTimestamp: "2022-07-09T17:44:37Z"
+  name: default-ipv4-ippool
+  resourceVersion: "7202"
+  uid: 49ecd163-1a83-4566-872a-fb0390102724
 spec:
+  allowedUses:
+  - Workload
+  - Tunnel
   blockSize: 26
   cidr: 10.48.0.0/24
   ipipMode: Never
   natOutgoing: true
   nodeSelector: all()
+  vxlanMode: Never
+```
 
----
+We have extracted the relevant information here. You can see from the output that the default IPPool range is 10.48.0.0/24, which is actually the Calico Initial default IP Pool range of our k8s cluster.
+Note the relevant information in the manifest:
 
+* allowedUses: specifies if this IPPool can be used for tunnel interfaces, workload interfaces, or both.
+* blockSize: used by Calico IPAM to efficiently assign IPAM Blocks to node and advertise the between different nodes.
+* cidr: specifies the IP range to be used for this IPPool.
+* ipipMode/vxlanMode: to enable or disable ipip and vxlan overlay. options are never, always and crosssubnet.
+* natOutgoing: specifies if SNAT should happen when pods try to connect to destination outside the cluster. `natOutgoing` must be set to `true` when using overlay networking mode for external connectivity.
+* nodeSelector: selects the nodes that Calico IPAM should assign addresses from this pool to.
+
+
+Let's create a new IPPool by applying the following manifest.
+
+```
+kubectl apply -f -<<EOF
 apiVersion: projectcalico.org/v3
 kind: IPPool
 metadata:
@@ -70,10 +71,10 @@ spec:
   ipipMode: Never
   natOutgoing: true
   nodeSelector: all()
-```
+EOF
 
-You can see that we have effectively broken the default ippool into to equal subnets. 
-Apply the manifest and verify the output.
+```
+You should receive an output similar to the following.
 
 ```
 calicoctl apply -f 2.3-ippools.yaml 

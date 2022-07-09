@@ -136,26 +136,31 @@ IPv4 BGP status
 +--------------+-------------------+-------+----------+-------------+
 | PEER ADDRESS |     PEER TYPE     | STATE |  SINCE   |    INFO     |
 +--------------+-------------------+-------+----------+-------------+
-| 10.0.0.10    | node-to-node mesh | up    | 19:34:19 | Established |
-| 10.0.0.12    | node-to-node mesh | up    | 19:34:19 | Established |
+| 10.0.1.20    | node-to-node mesh | up    | 17:44:47 | Established |
+| 10.0.1.31    | node-to-node mesh | up    | 17:44:46 | Established |
 +--------------+-------------------+-------+----------+-------------+
 
 IPv6 BGP status
 No IPv6 peers found.
 ```
-This shows that currently Calico is only peering with the other nodes in the cluster and is not peering with any router outside of the cluster.
+This above output shows that currently Calico on worker1 is only peering with the other nodes (control1 and worker2) in the cluster and is not peering with any router outside of the cluster.
 
-Exit back to master:
 ```
 exit
 ```
 
-#### 2.2.3.2. Add a BGP Peer
 
-In this lab we will simulate peering to a router outside of the cluster by peering to host1. We've already set-up host1 to act as a router, and it is ready to accept new BGP peering.
+Now, let's simulate BGP peering to a router outside of the cluster by peering to bastion node. We've already set up bastion node to act as a router and it is ready to accept new BGP peering.
+
+If you are interested to see the stand alone bird configuration on bastion node, run the following command.
+
+```
+sudo cat /etc/bird/bird.conf
+```
+
 
 Add the new BGP Peer:
-```bash
+```
 calicoctl apply -f 2.2-bgp-peer.yaml
 ```
 You should see the following output when you apply the new bgp peer resource. 

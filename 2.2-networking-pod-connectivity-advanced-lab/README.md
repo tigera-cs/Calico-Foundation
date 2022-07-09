@@ -158,10 +158,19 @@ If you are interested to see the standalone bird configurations on `bastion` nod
 sudo cat /etc/bird/bird.conf
 ```
 
+Let's add a new BGPPeer by running the following command. Get yourself familiar with the GBPPeer resource. `peerIP` is the IP address of the peering router, which the `bastion` node in this case. `asNumber` is the AS number of the peering router.
 
-Add the new BGP Peer:
 ```
-calicoctl apply -f 2.2-bgp-peer.yaml
+kubectl apply -f -<<EOF
+apiVersion: projectcalico.org/v3
+kind: BGPPeer
+metadata:
+  name: bgppeer-global-64512
+spec:
+  peerIP: 10.0.1.10
+  asNumber: 64512
+EOF
+
 ```
 You should see the following output when you apply the new bgp peer resource. 
 

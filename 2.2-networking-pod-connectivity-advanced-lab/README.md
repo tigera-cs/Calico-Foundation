@@ -97,7 +97,7 @@ default-ipv4-ippool   10.48.0.0/24   all()
 external-pool         10.48.2.0/24   all()       
 ```
 
-We now have:
+We now have the followings:
 
 | CIDR         |  Purpose                                                  |
 |--------------|-----------------------------------------------------------|
@@ -106,7 +106,7 @@ We now have:
 | 10.48.2.0/24 | Calico - External IPPool (externally routable)           |
 | 10.49.0.0/16 | Kubernetes Service Network (via kubeadm `--service-cidr`) |
 
-### 2.2.3. Configure Calico BGP peering
+### Configure Calico BGP Peering to connect with a network outside of the cluster
 
 #### 2.2.3.1. Examine BGP peering status
 
@@ -114,6 +114,14 @@ Switch to worker1:
 ```
 ssh worker1
 ```
+
+```
+curl -L https://github.com/projectcalico/calico/releases/download/v3.23.2/calicoctl-linux-amd64 -o calicoctl
+chmod +x calicoctl
+sudo mv calicoctl /usr/local/bin
+
+```
+
 
 Check the status of Calico on the node:
 ```bash

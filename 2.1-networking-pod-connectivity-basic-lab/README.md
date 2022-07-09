@@ -92,7 +92,7 @@ exit
 
 ### Examine the host's network namespace
 
-We'll start by switching to the node where the customer pod is running. In our example earlier this was 'worker1'. SSH into worker1. (Please note that the your customer pod might run on a different node. SSH into the worker node where customer pod is running in your lab)
+We'll start by switching to the node where the customer pod is running. In our example earlier this was `worker1`. SSH into worker1. (Please note that the your customer pod might run on a different node. SSH into the worker node where customer pod is running in your lab)
 
 ```
 ssh worker1

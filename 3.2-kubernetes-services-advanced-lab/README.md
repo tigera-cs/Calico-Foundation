@@ -1,9 +1,12 @@
 ## 3.2. Kubernetes Service - Advanced Services Lab
 
-This is the 2nd of a series of labs about k8s services. This lab explores different scenarios for advertising services ip addresses via BGP. In this lab, you will: 
-3.2.1. Advertise the service IP range
-3.2.2. Advertise individual service cluster IP
-3.2.3. Advertise individual service external IP
+This is the 2nd of a series of labs about k8s services. This lab explores different scenarios for advertising services ip addresses via BGP.
+
+In this lab, you will: 
+
+* Advertise the service IP range
+* Advertise individual service cluster IP
+* Advertise individual service external IP
 
 ### 3.2.0. Before you begin
 

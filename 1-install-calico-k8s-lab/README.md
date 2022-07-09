@@ -116,7 +116,7 @@ spec:
 EOF
 ```
 
-The operator is constantly watching for the Installation resource. Once the operator notices that the Installation resource is created, it will createa a number of resources. Some of these resources to note are the pods that are created in the calico-system namespace. Confirm that all of the pods are running with the following command. Wait untill all the pods are in running state and the hit ctrl+c.
+The operator is constantly watching for the Installation resource. Once the operator notices that the Installation resource is created, it will createa a number of resources. Some of these resources to note are the pods that are created in the calico-system namespace. Confirm that all of the pods are running with the following command. Wait untill all the pods are in running state and then hit ctrl+c.
 
 ```
 watch kubectl get pods -n calico-system

@@ -65,7 +65,7 @@ We have the following address ranges configured in this cluster.
 
 
 
-Calico provides a sophisticated and powerful IPAM solution, which enables you to allocate and manage IP addresses for a variety of use cases and requirements.\
+Calico provides a sophisticated and powerful IPAM solution, which enables you to allocate and manage IP addresses for a variety of use cases and requirements.
 
 One of the use cases of Calico IPPool is to distinguish between different ranges of IP addresses that have different routablity scopes. If you are operating at a large scale, then IP addresses are precious resources. You might want to have a range of IPs that is only routable within the cluster, and another range of IPs that is routable across your enterprise. In that case, you can choose which pods get IPs from which range depending on whether workloads from outside of the cluster need direct access to the pods or not.
 

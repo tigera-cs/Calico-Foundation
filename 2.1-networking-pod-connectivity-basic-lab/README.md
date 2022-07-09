@@ -2,27 +2,26 @@
 
 This lab is the first of a series of labs exploring k8s networking concepts. This lab focuses on basic k8s networking from the POD and Host perspectives.   
 In this lab, you will:
-2.1. Examine what the network looks like from the perspecitve of a pod (the pod network namespace)
-2.2. Examine what the network looks like from the perspecitve of the host (the host network namespace)
+* Examine what the network looks like from the perspecitve of a pod (the pod network namespace)
+* Examine what the network looks like from the perspecitve of the host (the host network namespace)
 
-### 2.1.0. Before you begin
+### Before you begin
 
 The prerequisite to this lab is completing Lab1, which is installing Calico CNI and deploying the sample application Yaobank.
-If you haven't already done so, inform your trainer and go back to the previous lab.
 
-### 2.1.1. Examine pod network namespace
+
+### Examine pod network namespace
 
 We'll start by examining what the network looks like from the pod's point of view. Each pod get's its own Linux network namespace, which you can think of as giving it an isolated copy of the Linux networking stack. 
 
-#### 2.1.1.1. Find the name and location of the customer pod
-From k8s master node, get the details of the customer pod using the following command.
+#### Find the name and location of the customer pod
+Let's find some details about the customer pod using the following command.
 ```
 kubectl get pods -n yaobank -l app=customer -o wide
 ```
 ```
-ubuntu@host1:~/calico/lab-manifests$ kubectl get pods -n yaobank -l app=customer -o wide
-NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE      NOMINATED NODE   READINESS GATES
-customer-5df6b999fb-cf7jl   1/1     Running   0          24h   10.48.0.67   worker1   <none>           <none>
+NAME                        READY   STATUS    RESTARTS   AGE     IP          NODE                                      NOMINATED NODE   READINESS GATES
+customer-68d67b588d-w5zhr   1/1     Running   0          8m58s   10.48.0.7   ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
 ```
 
 Note the node on which the pod is running on (`worker1` in this example.)

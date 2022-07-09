@@ -16,32 +16,47 @@ This lab depends on the previous labs setup and requires Calico CNI set up, Yaob
 
 Advertising services over BGP allows you to directly access the service without using NodePorts or a cluster Ingress Controller.
 
-#### 3.2.1.1. Examine routes
-Before we begin take a look at the state of routes on the standalone host (host1).
+
+Before we begin, let's take a look at the state of routes on the bastion node.
+
 ```
 ip route
 ```
-```
-ubuntu@host1:~/calico/lab-manifests$ ip route
-default via 10.0.0.254 dev ens160 proto dhcp src 10.0.0.20 metric 100
-10.0.0.0/24 dev ens160 proto kernel scope link src 10.0.0.20
-10.0.0.254 dev ens160 proto dhcp scope link src 10.0.0.20 metric 100
-10.48.2.232/29 via 10.0.0.11 dev ens160 proto bird
-```
-If you completed the previous lab correctly, you should see one route that was learned from Calico that provides access to the nginx customer pod that was created in the externally routable namespace (the route ending in `proto bird` in this example output). In this lab we will advertise Kubernetes services (rather than individual pods) over BGP.
 
-#### 3.2.1.2. Add Calico BGP configuration
+```
+default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.10 metric 100 
+10.0.1.0/24 dev ens5 proto kernel scope link src 10.0.1.10 
+10.0.1.1 dev ens5 proto dhcp scope link src 10.0.1.10 metric 100 
+10.48.2.216/29 via 10.0.1.31 dev ens5 proto bird 
+```
 
-Examine the default BGP configuration we are about to apply
-```
-more 3.2-default-bgp.yaml
-```
-The `serviceClusterIPs` clause tells Calico to advertise the cluster IP range.
+If you completed the previous lab correctly, you should see one route that was learned from Calico that provides access to the nginx pod that was created in the externally routable namespace (the route ending in `proto bird` in this example output). In this lab we will advertise Kubernetes services (rather than individual pods) over BGP.
 
-Apply the configuration
+
+A BGP configuration resource (BGPConfiguration) represents BGP specific configuration options for the cluster or a specific node. The resource with the name default has a specific meaning and contains the BGP global default configuration. By the default, there is no BGPConfiguration resource deployed in the cluster. However, Once BGP is activated, Calico has default built-in configurations for BGP in its data model. For example, it use 64512 as the default AS number.
+
+Run the following and command and ensure that there is no bgpconfigurations in your cluster.
+
 ```
-calicoctl apply -f 3.2-default-bgp.yaml
+kubectl get bgpconfigurations
 ```
+
+Examine the following default BGP configuration and then apply it.
+
+```
+kubectl apply -f -<<EOF
+apiVersion: projectcalico.org/v3
+kind: BGPConfiguration
+metadata:
+  name: default
+spec:
+  serviceClusterIPs:
+  - cidr: "10.49.0.0/16"
+EOF
+
+```
+The `serviceClusterIPs` parameter tells Calico to advertise the cluster IP range.
+
 
 Verify the BGPConfiguration contains the `serviceClusterIPs` key
 ```

@@ -78,7 +78,7 @@ The `summary` service has two endpoints (`110.48.128.1` on port `80` AND `10.48.
 #### Examine the KUBE-SERVICE chain
 
 ```
-sudo iptables -v --numeric --table nat --list KUBE-SERVICES
+sudo iptables -v --numeric --table nat --list KUBE-SERVICES | column -t
 ```
 
 ```
@@ -116,58 +116,62 @@ Each iptables chain consists of a list of rules that are executed in order until
 * the comments that kube-proxy inculdes
 * the additional match criteria at the end of each rule - e.g `dpt:80` that specifies the destination port match
 
-#### 3.1.2.3. KUBE-SERVICES -> KUBE-SVC-XXXXXXXXXXXXXXXX
+#### KUBE-SERVICES -> KUBE-SVC-XXXXXXXXXXXXXXXX
 
 Now let's look more closely at the rules for the `summary` service.
+
 ```
-sudo iptables -v --numeric --table nat --list KUBE-SERVICES | grep -E summary
-```
-```
-ubuntu@worker1:~$ sudo iptables -v --numeric --table nat --list KUBE-SERVICES | grep -E summary
-    0     0 KUBE-MARK-MASQ  tcp  --  *      *      !10.48.0.0/16         10.49.163.205        /* yaobank/summary:http cluster IP */ tcp dpt:80
-    0     0 KUBE-SVC-OIQIZJVJK6E34BR4  tcp  --  *      *       0.0.0.0/0            10.49.163.205        /* yaobank/summary:http cluster IP */ tcp dpt:80
+sudo iptables -v --numeric --table nat --list KUBE-SERVICES | grep -E summary | column -t
 ```
 
-The second rule directs traffic destined for the summary service clusterIP (`10.49.163.205` in the example output) to the chain that load balances the service (KUBE-SVC-XXXXXXXXXXXXXXXX).
+```
+0  0  KUBE-MARK-MASQ             tcp  --  *  *  !10.48.0.0/16  10.49.198.166  /*  yaobank/summary:http  cluster  IP  */  tcp  dpt:80
+0  0  KUBE-SVC-OIQIZJVJK6E34BR4  tcp  --  *  *  0.0.0.0/0      10.49.198.166  /*  yaobank/summary:http  cluster  IP  */  tcp  dpt:80
+```
 
-#### 3.1.2.4. KUBE-SVC-XXXXXXXXXXXXXXXX -> KUBE-SEP-XXXXXXXXXXXXXXXX
+The second rule directs traffic destined for the summary service clusterIP (`10.49.198.166` in the example output) to the chain that load balances the service (KUBE-SVC-XXXXXXXXXXXXXXXX).
 
-`kube-proxy` in `iptables` mode uses a randomized equal cost selection algorithm to load balance traffic between pods.  We currently have two `summary` pods.
+#### KUBE-SVC-XXXXXXXXXXXXXXXX -> KUBE-SEP-XXXXXXXXXXXXXXXX
+
+`kube-proxy` in `iptables` mode uses an equal probability algorithm to load balance traffic between pods.  We currently have two `summary` pods.
 
 Let's examine how this loadbalancing works. (Remember your chain name may be different than this example.)
+
 ```
-sudo iptables -v --numeric --table nat --list KUBE-SVC-OIQIZJVJK6E34BR4
+sudo iptables -v --numeric --table nat --list KUBE-SVC-OIQIZJVJK6E34BR4 | column -t
 ```
+
 ```
-ubuntu@worker1:~$ sudo iptables -v --numeric --table nat --list KUBE-SVC-OIQIZJVJK6E34BR4
-Chain KUBE-SVC-OIQIZJVJK6E34BR4 (1 references)
- pkts bytes target     prot opt in     out     source               destination
-    0     0 KUBE-SEP-QBQ2ZLCSJLFEASMX  all  --  *      *       0.0.0.0/0            0.0.0.0/0            statistic mode random probability 0.50000000000
-    0     0 KUBE-SEP-BS2BXDAXX5ZBJNP2  all  --  *      *       0.0.0.0/0            0.0.0.0/0
+Chain  KUBE-SVC-OIQIZJVJK6E34BR4  (1                         references)
+pkts   bytes                      target                     prot         opt  in  out  source     destination
+0      0                          KUBE-SEP-NCOI6JAXVX2D4BXJ  all          --   *   *    0.0.0.0/0  0.0.0.0/0    /*  yaobank/summary:http  */  statistic  mode  random  probability  0.50000000000
+0      0                          KUBE-SEP-TVZHKMXMBG2BIHXS  all          --   *   *    0.0.0.0/0  0.0.0.0/0    /*  yaobank/summary:http  */
 ```
 
 Notice that `kube-proxy` is using the `iptables` `statistic` module to set the probability for a packet to be randomly matched.  Make sure you scroll all the way to the right to see the full output.
 
-The first rule directs traffic destined for the `summary` service to the chain that delivers packets to the first service endpoint (KUBE-SEP-QBQ2ZLCSJLFEASMX) with a probability of 0.50000000000. The second rule unconditionally directs to the second service endpoint chain (KUBE-SEP-BS2BXDAXX5ZBJNP2). The result is that traffic is load balanced across the service endpoints equally (on average).
+The first rule directs traffic destined for the `summary` service to the chain that delivers packets to the first service endpoint (KUBE-SEP-NCOI6JAXVX2D4BXJ) with a probability of 0.50000000000. The second rule unconditionally directs to the second service endpoint chain (KUBE-SEP-TVZHKMXMBG2BIHXS). The result is that traffic is load balanced across the service endpoints equally (on average).
 
-If there were 3 service endpoints then the first chain matches would be probability 0.33333333, the second probability 0.5, and the last unconditional. The result is each service endpoint receives a third of the traffic (on average).
+If there were 3 service endpoints, then the first chain match would be probability 0.33333333, the second probability 0.5, and the last unconditional. The result is each service endpoint receives a third of the traffic (on average).
 
-#### 3.1.2.5. KUBE-SEP-XXXXXXXXXXXXXXXX -> `summary` pod
+#### KUBE-SEP-XXXXXXXXXXXXXXXX -> `summary` pod
+
 Let's look at one of the service endpoint chains. (Remember your chain names may be different than this example.)
 ```
-sudo iptables -v --numeric --table nat --list KUBE-SEP-QBQ2ZLCSJLFEASMX
-```
-```
-ubuntu@worker1:~$ sudo iptables -v --numeric --table nat --list KUBE-SEP-QBQ2ZLCSJLFEASMX
-Chain KUBE-SEP-QBQ2ZLCSJLFEASMX (1 references)
- pkts bytes target     prot opt in     out     source               destination
-    0     0 KUBE-MARK-MASQ  all  --  *      *       10.48.0.65           0.0.0.0/0
-    0     0 DNAT       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp to:10.48.0.65:80
+sudo iptables -v --numeric --table nat --list KUBE-SEP-NCOI6JAXVX2D4BXJ | column -t
 ```
 
-The second rule performs the DNAT that changes the destination IP from the service's clusterIP to the IP address of the service endpoint backing pod (`10.48.0.65` in this example). After this, standard Linux routing can handle forwarding the packet like it would for any other packet.
+```
+Chain  KUBE-SEP-NCOI6JAXVX2D4BXJ  (1              references)
+pkts   bytes                      target          prot         opt  in  out  source         destination
+0      0                          KUBE-MARK-MASQ  all          --   *   *    10.48.128.192  0.0.0.0/0    /*  yaobank/summary:http  */
+0      0                          DNAT            tcp          --   *   *    0.0.0.0/0      0.0.0.0/0    /*  yaobank/summary:http  */  tcp  to:10.48.128.192:80
+```
 
-### 3.1.2.6. Recap
+The second rule performs the DNAT that changes the destination IP from the service's clusterIP to the IP address of the service endpoint backing pod (`10.48.128.192` in this example). After this, standard Linux routing can handle forwarding the packet like it would for any other packet.
+
+#### Recap
+
 You've just traced the kube-proxy iptables rules used to load balance traffic to `summary` pods exposed as a service of type `ClusterIP`.
 
 In summary, for a packet being sent to a clusterIP:
@@ -175,7 +179,7 @@ In summary, for a packet being sent to a clusterIP:
 * The KUBE-SVC-XXXXXXXXXXXXXXXX chain load balances the packet to a random service endpoint KUBE-SEP-XXXXXXXXXXXXXXXX chain.
 * The KUBE-SEP-XXXXXXXXXXXXXXXX chain DNATs the packet so it will get routed to the service endpoint (backing pod).
 
-### 3.1.3. Explore NodePort iptables rules
+### Explore NodePort iptables rules
 
 Let's explore the iptables rules that implement the `customer` service.
 

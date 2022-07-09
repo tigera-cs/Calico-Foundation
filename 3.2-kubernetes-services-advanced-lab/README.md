@@ -8,13 +8,11 @@ In this lab, you will:
 * Advertise individual service cluster IP
 * Advertise individual service external IP
 
-### 3.2.0. Before you begin
+### Before you begin
 
-This lab builds on previous lab setup and requires Calico CNI to setup, Yaobank application deployed and BGP peering established with Host1. If you haven't already done so:
-* Deploy Calico and the YAO Bank sample application as described in Lab1
-* Add host1 as a BGP peer as described in Lab2.2
+This lab depends on the previous labs setup and requires Calico CNI set up, Yaobank application deployed, and BGP peering established with the bastion node. 
 
-### 3.2.1. Advertise service cluster IP addresses
+### Advertise service cluster IP addresses
 
 Advertising services over BGP allows you to directly access the service without using NodePorts or a cluster Ingress Controller.
 

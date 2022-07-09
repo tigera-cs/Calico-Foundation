@@ -172,7 +172,7 @@ spec:
 EOF
 
 ```
-You should see the following output when you apply the new BGPPeer resource. 
+You should receive an output similar to the following.
 
 ```
 bgppeer.projectcalico.org/bgppeer-global-64512 created
@@ -232,48 +232,146 @@ EOF
 
 ```
 
-You should receive a message similar to the following.
+You should receive an output similar to the following.
 
 ```
 namespace/external-ns created
 ```
 
-#### 2.2.4.2. Deploy an nginx pod
-Now deploy a NGINX example pod in the `external-ns` namespace, along with a simple network policy that allows ingress on port 80.
+Before deploying nginx to test the routing for pods deployed in `external-pool` IPPool from outside the cluster, let's examine the routing table of `bastion` node. You should receive an output similar to the following. At this point, `bastion` node should have no routing info for `external-pool` IPPool as there has not been any pods receiving their IP addresses from that IPPool.
+
 ```
-kubectl apply -f 2.2-nginx.yaml
+ip route
 ```
+
 ```
-ubuntu@host1:~/calico/lab-manifests$ kubectl apply -f 2.2-nginx.yaml
+default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.10 metric 100 
+10.0.1.0/24 dev ens5 proto kernel scope link src 10.0.1.10 
+10.0.1.1 dev ens5 proto dhcp scope link src 10.0.1.10 metric 100 
+```
+
+
+Now, deploy a nginx example pod in the `external-ns` namespace along with a simple network policy that allows ingress on port 80.
+
+```
+kubectl apply -f -<<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: external-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: v1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        imagePullPolicy: IfNotPresent
+
+---
+
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: nginx
+  namespace: external-ns
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - ports:
+    - protocol: TCP
+      port: 80
+EOF
+```
+
+You should receive an output similar to the following.
+
+```
 deployment.apps/nginx created
 networkpolicy.networking.k8s.io/nginx created
+```
+Check `bastion` node's routing table again. You should have a new routing table entry.
+
+```
+default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.10 metric 100 
+10.0.1.0/24 dev ens5 proto kernel scope link src 10.0.1.10 
+10.0.1.1 dev ens5 proto dhcp scope link src 10.0.1.10 metric 100 
+10.48.2.216/29 via 10.0.1.31 dev ens5 proto bird 
 ```
 
 #### 2.2.4.3. Access the nginx pod from outside the cluster
 
-Let's see what IP address was assigned:
+Check the IP address that was assigned to our nginx pod.
 ```
 kubectl get pods -n external-ns -o wide
 ```
 ```
-ubuntu@host1:~/calico/lab-manifests$ kubectl get pods -n external-ns -o wide
-NAME                     READY   STATUS    RESTARTS   AGE     IP            NODE      NOMINATED NODE   READINESS GATES
-nginx-7bb7cd8db5-zqzks   1/1     Running   0          5m44s   10.48.2.232   worker1   <none>           <none>
+NAME                     READY   STATUS    RESTARTS   AGE   IP            NODE                                      NOMINATED NODE   READINESS GATES
+nginx-76dd8577bc-6jqnz   1/1     Running   0          10m   10.48.2.216   ip-10-0-1-31.eu-west-1.compute.internal   <none>           <none>
+```
+The output above shows that the nginx pod has an IP address from the externally routable IP Pool.
+
+Let's try connectivity to the nginx pod from the bastion node. Please make sure to replace the IP address of nginx pod from your lab in the following command.
+
+```
+curl 10.48.2.216
 ```
 
-The output shows that the nginx pod has an IP address from the externally routable IP Pool.
+This should have succeeded showing that the nginx pod is directly routable on the broader network.
 
-Try to connect to it from host1:
 ```
-curl 10.48.2.232
-```
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
 
-This should have succeeded, showing that the nginx pod is directly routable on the broader network.
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
 
 If you would like to see IP allocation stats from Calico-IPAM, run the following command.
 
 ```
 calicoctl ipam show
+```
+
+There is one IP address in use from the range `10.48.2.0/24`, which is for our nginx pod.
+```
++----------+--------------+-----------+------------+------------+
+| GROUPING |     CIDR     | IPS TOTAL | IPS IN USE |  IPS FREE  |
++----------+--------------+-----------+------------+------------+
+| IP Pool  | 10.48.0.0/24 |       256 | 9 (4%)     | 247 (96%)  |
+| IP Pool  | 10.48.2.0/24 |       256 | 1 (0%)     | 255 (100%) |
++----------+--------------+-----------+------------+------------+
 ```
 
 > __You have completed Lab2.2 and you should have by now a strong understanding of k8s networking__

@@ -43,33 +43,12 @@ When Calico is deployed, a defaul IPPool is created in the cluster based on the 
 Let's find the configured IPPool in this cluster using the following command.
 
 ```
-kubectl get ippools -o yaml
+calicoctl get ippools
 ```
 
 ```
-apiVersion: v1
-items:
-- apiVersion: projectcalico.org/v3
-  kind: IPPool
-  metadata:
-    creationTimestamp: "2022-07-09T17:44:37Z"
-    name: default-ipv4-ippool
-    resourceVersion: "7202"
-    uid: 49ecd163-1a83-4566-872a-fb0390102724
-  spec:
-    allowedUses:
-    - Workload
-    - Tunnel
-    blockSize: 26
-    cidr: 10.48.0.0/24
-    ipipMode: Never
-    natOutgoing: true
-    nodeSelector: all()
-    vxlanMode: Never
-kind: List
-metadata:
-  resourceVersion: ""
-  selfLink: ""
+NAME                  CIDR           SELECTOR   
+default-ipv4-ippool   10.48.0.0/24   all() 
 ```
 
 In this cluster Calico has been configured to allocate IP addresses for pods from the `10.48.0.0/24` CIDR (which is a subset of the `10.48.0.0/16` configured on Kubernetes).
@@ -79,7 +58,7 @@ We have the following address ranges configured in this cluster.
 | CIDR         |  Purpose                                                  |
 |--------------|-----------------------------------------------------------|
 | 10.48.0.0/16 | Kubernetes Pod Network (via kubeadm `--pod-network-cidr`) |
-| 10.48.0.0/24 | Calico - Initial default IP Pool                           |
+| 10.48.0.0/24 | Calico - Initial default IPPool                           |
 | 10.49.0.0/16 | Kubernetes Service Network (via kubeadm `--service-cidr`) |
 
 
@@ -91,10 +70,22 @@ We'll simulate this use case in this lab by creating a second IPPool to represen
 
 
 We're going to create a new pool for `10.48.2.0/24` that is externally routable.
+
 ```
-calicoctl apply -f 2.2-pool.yaml
+kubectl apply -f -<<EOF
+apiVersion: projectcalico.org/v3
+kind: IPPool
+metadata:
+  name: external-pool
+spec:
+  cidr: 10.48.2.0/24
+  blockSize: 29
+  ipipMode: Never
+  natOutgoing: true
+EOF
+
+```
 calicoctl get ippools
-```
 ```
 ubuntu@host1:~/calico/lab-manifests$ calicoctl apply -f 2.2-pool.yaml
 Successfully applied 1 'IPPool' resource(s)

@@ -1,0 +1,120 @@
+## This alert identifies non-existing DNS responses for Internet addresses that were observed more than 100 times in the past 5 minutes. This alert is applied on dns logs.
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: frequent-dns-responses
+spec:
+  description: "Monitor for NXDomain"
+  severity: 10
+  period: 10m
+  lookback: 10m
+  dataSet: dns
+  query: rcode = NXDomain AND (qtype = A OR qtype = AAAA)
+  aggregateBy: [ qname ]
+  field: count
+  metric: sum
+  condition: gte
+  threshold: 200
+
+---
+
+## Here we detect TCP traffic on port in development namespace. This alert is applied on flow logs.
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: request-count-development-ns
+spec:
+  description: "tcp flows on development namespace"
+  severity: 10
+  period: 5m
+  lookback: 5m
+  dataSet: flows
+  query: proto='tcp' AND action='allow' AND dest_port='80' AND (source_namespace='development' OR dest_namespace='development') AND reporter=src
+  aggregateBy: [source_namespace, source_name_aggr]
+  field: num_flows
+  metric: sum
+  condition: gt
+  threshold: 0
+
+ #---------------------------------GlobalAlert configuration-----------------------------------#
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkSet
+metadata:
+ name: metadata-api
+spec:
+  nets:
+    - 169.254.169.254
+---
+
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: policy.globalnetworkset
+spec:
+  #summary: "Alerts on any changes to global network sets"
+  description: "[audit] [privileged access] change detected for ${objectRef.resource} ${objectRef.name}"
+  severity: 100
+  period: 5m
+  lookback: 5m
+  dataSet: audit
+  query: (verb=create OR verb=update OR verb=delete OR verb=patch) AND "objectRef.resource"=globalnetworksets
+  aggregateBy: [objectRef.resource, objectRef.name]
+  metric: count
+  condition: gt
+  threshold: 0
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: network.lateral.originate
+spec:
+  #summary: "Alerts when pods with a specific label (app=backend) initiate connections to other workloads within the cluster"
+  description: "[flows] [lateral movement] ${source_namespace}/${source_name_aggr} with label app=crown-app initiated connection"
+  severity: 100
+  period: 5m
+  lookback: 5m
+  dataSet: flows
+  query: '"source_labels.labels"="app=backend" AND proto=tcp AND action=allow AND reporter=src AND NOT dest_name_aggr="metadata-api" AND NOT dest_name_aggr="pub" AND NOT dest_name_aggr="kse.kubernetes"'
+  aggregateBy: [source_namespace, source_name_aggr]
+  field: num_flows
+  metric: sum
+  condition: gt
+  threshold: 0
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: network.lateral.access
+spec:
+  #summary: "Alerts when pods with a specific label (app=frontend) accessed by other workloads within the cluster"
+  description: "[flows] [lateral movement] ${source_namespace}/${source_name_aggr} has accessed pod with label app=crown-app"
+  severity: 100
+  period: 5m
+  lookback: 5m
+  dataSet: flows
+  query: '"dest_labels.labels"="app=frontend" AND proto=tcp AND action=allow AND reporter=dst'
+  aggregateBy: [source_namespace, source_name_aggr]
+  field: num_flows
+  metric: sum
+  condition: gt
+  threshold: 0
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: network.cloudapi
+spec:
+  #summary: "Alerts on access to cloud metadata APIs"
+  description: "[flows] [cloud API] cloud metadata API accessed by ${source_namespace}/${source_name_aggr}"
+  severity: 100
+  period: 5m
+  lookback: 5m
+  dataSet: flows
+  query: '(dest_name_aggr="metadata-api" OR dest_ip="169.254.169.254" OR dest_name_aggr="kse.kubernetes" ) AND proto="tcp" AND action="allow" AND reporter=src AND (source_namespace="development")'
+  aggregateBy: [source_namespace, source_name_aggr]
+  field: num_flows
+  metric: sum
+  condition: gt
+  threshold: 0

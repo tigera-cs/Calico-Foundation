@@ -1,0 +1,19 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: training-tier.customer2summary
+  namespace: production
+spec:
+  tier: training-tier
+  order: 500
+  selector: app == "backend"
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: app == "frontend"
+    destination:
+      ports:
+      - 80
+  types:
+    - Ingress

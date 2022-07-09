@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-client
+  namespace: egress-ns
+  labels:
+    app: sample-client
+  annotations:
+         egress.projectcalico.org/selector: egress-code == 'red'
+spec:
+  containers:
+  - image: laurenceman/alpine
+    imagePullPolicy: IfNotPresent
+    name: sample-client
+  restartPolicy: Always

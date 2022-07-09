@@ -1,0 +1,14 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: security.block-tor
+spec:
+  tier: security
+  order: 210
+  selector:  all()
+  types:
+  - Egress
+  egress:
+  - action: Deny
+    destination:
+      selector: feed == 'tor'

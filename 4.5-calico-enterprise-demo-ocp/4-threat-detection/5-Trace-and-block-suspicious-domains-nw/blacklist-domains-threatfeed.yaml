@@ -1,0 +1,10 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalThreatFeed
+metadata:
+  name: blacklist-domains
+spec:
+  content: DomainNameSet
+  pull:
+    http:
+      url: https://raw.githubusercontent.com/Dawsey21/Lists/master/main-blacklist.txt
+

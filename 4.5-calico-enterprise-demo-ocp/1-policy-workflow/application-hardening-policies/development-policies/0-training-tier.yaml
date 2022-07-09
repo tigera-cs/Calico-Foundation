@@ -1,0 +1,6 @@
+apiVersion: projectcalico.org/v3
+kind: Tier
+metadata:
+  name: training-tier
+spec:
+  order: 105

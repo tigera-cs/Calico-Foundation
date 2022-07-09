@@ -1,0 +1,10 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalReport
+metadata:
+  name: hourly-zone-policy-audit-report
+spec:
+  reportType: policy-audit
+  endpoints:
+    namespaces:
+      names: ["development", "staging", "production", "tigera-kibana", "tigera-manager", "tigera-elasticsearch", "tigera-fluentd"]
+  schedule: 0 * * * *

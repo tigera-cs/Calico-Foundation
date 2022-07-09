@@ -1,0 +1,39 @@
+# Its kind of failsafe policy 
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy 
+metadata:
+  name: failsafe
+spec:
+  selector: felixagent == 'ip-10-0-0-11'
+  order: 0
+  egress:
+  - action: Allow
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [22]
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [31000]
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [33003]
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports: [53]
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [443]
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [2379]
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports: [2380]

@@ -1,0 +1,21 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: allow-egress-to-domains
+spec:
+  order: 1
+  selector: app == 'frontend'
+  types:
+  - Egress
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - 53
+      - dns
+  - action: Allow
+    destination:
+      domains:
+      - google.com
+      - www.google.com

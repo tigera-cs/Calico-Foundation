@@ -1,0 +1,34 @@
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: policy.globalnetworkset
+spec:
+  #summary: "Alerts on any changes to global network sets"
+  description: "[audit] [privileged access] change detected for ${objectRef.resource} ${objectRef.name}"
+  severity: 100
+  period: 5m
+  lookback: 5m
+  dataSet: audit
+  query: (verb=create OR verb=update OR verb=delete OR verb=patch) AND "objectRef.resource"=globalnetworksets
+  aggregateBy: [objectRef.resource, objectRef.name]
+  metric: count
+  condition: gt
+  threshold: 0
+
+---
+#Following is the basic example to trigger the alert when we see 50 flows in the entire cluster in last 5 mins.
+
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: 50-flows
+spec:
+  description: "50 flows Example"
+  summary: "Flows example ${count} > 50"
+  severity: 50
+  dataSet: flows
+  metric: count
+  condition: gt
+  threshold: 50
+---

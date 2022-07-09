@@ -1,0 +1,11 @@
+apiVersion: projectcalico.org/v3
+kind: HostEndpoint
+metadata:
+  name: hostendpoint
+  labels:
+    felixagent: ip-10-0-0-11
+spec:
+  interfaceName: eth0
+  node: ip-10-0-0-11
+  expectedIPs:
+  - 10.0.0.11

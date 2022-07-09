@@ -1,0 +1,13 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalReport
+metadata:
+  name: daily-tm-inventory-report
+  labels:
+    deployment: tigera-manager
+spec:
+  reportType: inventory
+  endpoints:
+    namespaces:
+      names:
+        - tigera-manager
+  schedule: 0 * * * *

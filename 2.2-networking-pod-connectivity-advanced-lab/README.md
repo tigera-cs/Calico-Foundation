@@ -43,12 +43,33 @@ When Calico is deployed, a defaul IPPOOL is created in the cluster based on the 
 Let's find the configured IPPOOL in this cluster using the following command.
 
 ```
-kubectl get ippools
+kubectl get ippools -o yaml
 ```
+
 ```
-ubuntu@host1:~/calico/lab-manifests$ calicoctl get ippools
-NAME                  CIDR           SELECTOR   
-default-ipv4-ippool   10.48.0.0/24   all()  
+apiVersion: v1
+items:
+- apiVersion: projectcalico.org/v3
+  kind: IPPool
+  metadata:
+    creationTimestamp: "2022-07-09T17:44:37Z"
+    name: default-ipv4-ippool
+    resourceVersion: "7202"
+    uid: 49ecd163-1a83-4566-872a-fb0390102724
+  spec:
+    allowedUses:
+    - Workload
+    - Tunnel
+    blockSize: 26
+    cidr: 10.48.0.0/24
+    ipipMode: Never
+    natOutgoing: true
+    nodeSelector: all()
+    vxlanMode: Never
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
 ```
 
 In this cluster Calico has been configured to allocate IP addresses for pods from the `10.48.0.0/24` CIDR (which is a subset of the `10.48.0.0/16` configured on Kubernetes).

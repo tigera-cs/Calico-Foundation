@@ -152,7 +152,7 @@ exit
 
 Now, let's simulate BGP peering to a router outside of the cluster by peering to bastion node. We've already set up bastion node to act as a router and it is ready to accept new BGP peering.
 
-If you are interested to see the stand alone bird configuration on bastion node, run the following command.
+If you are interested to see the standalone bird configurations on `bastion` node, run the following command from the `bastion` node.
 
 ```
 sudo cat /etc/bird/bird.conf

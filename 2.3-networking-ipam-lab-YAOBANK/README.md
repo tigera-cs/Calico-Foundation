@@ -3,11 +3,12 @@
 This is the 3rd lab in a series of labs exploring k8s networking. It explores k8s ip adress management via Calico IPAM.
 
 In this lab, you will:
-* Check existing IPPools and create new IPPools 
-* Update the yaobank deployments with the new IPPools
+
+* Check existing IPPools and create a new IPPool
+* Update the yaobank deployments to receive IP addresses from the new IPPool
 * Verify the host routing
 
-### Check existing IPPools and create new IPPools 
+### Check existing IPPools and create a new IPPool
 
 Check the IPPools that exist in the cluster. You should see two IPPools, one (default-ipv4-ippool) was created at the cluster creation time using the Installation resource and the other (external-pool) was created in the previous lab as part of checking pod's external connectivity exercise.
 
@@ -57,7 +58,7 @@ Note the relevant information in the manifest:
 * nodeSelector: selects the nodes that Calico IPAM should assign addresses from this pool to.
 
 
-Let's create a new IPPool by applying the following manifest.
+Let's create a new IPPool by applying the following manifest. This time we want to use this IPPool to assign IP addresses to specific deployments instead of all the pods deployed in a namespace.
 
 ```
 kubectl apply -f -<<EOF
@@ -77,27 +78,209 @@ EOF
 You should receive an output similar to the following.
 
 ```
-calicoctl apply -f 2.3-ippools.yaml 
-Successfully applied 2 'IPPool' resource(s)
+ippool.projectcalico.org/pool2-ipv4-ippool created
 ```
+Check the IPPool that exist in the cluster.
 
 ```
 calicoctl get ippools
-NAME                CIDR             SELECTOR   
-pool1-ipv4-ippool   10.48.0.0/17     all()      
-pool2-ipv4-ippool   10.48.128.0/17   all()     
+```
+```
+NAME                  CIDR             SELECTOR   
+default-ipv4-ippool   10.48.0.0/24     all()      
+external-pool         10.48.2.0/24     all()      
+pool2-ipv4-ippool     10.48.128.0/24   all()  
 ```
 
-We have now the  so that we can test ipam address assignment
 
-### 2.3.2. Update the yaobank deployments with the new IP Pools
+### Update the yaobank deployments to receive IP addresses from the new IPPool
 
-Now let's update the yao
-
- the pools that yaobank manifest we have deployed in Lab1, adding annotation to explicitly define the ip pool for each deployment. Examine the manifest 2.3-yaobank-ipam.yaml before deploying, specifically the pod the ip pool  annotations.
+There is a new version of the yaobank application that is configured for specific IP address treatment. We have configured the yaobank manifes with the necessary annotation to use the newly created IPPool. Examine the annotation section of the deployments below and get yourself familiar with the configurations. Before deploying the new version yaobank application, let's delete the old version to avoid any conflicts.
 
 ```
-cat 2.3-yaobank-ipam.yaml
+kubectl delete namespace yaobank
+```
+You should receive an output similar to the following. This command might take about 1-2 minutes to complete. Please wait util the namespace and all of the resources assocaited with it are deleted.
+
+```
+namespace "yaobank" deleted
+```
+
+```
+kubectl apply -f -<<EOF
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yaobank
+  labels:
+    istio-injection: disabled
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: yaobank
+  labels:
+    app: database
+spec:
+  ports:
+  - port: 2379
+    name: http
+  selector:
+    app: database
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: database
+  namespace: yaobank
+  labels:
+    app: yaobank
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: yaobank
+spec:
+  selector:
+    matchLabels:
+      app: database
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: database
+        version: v1
+      annotations:
+        "cni.projectcalico.org/ipv4pools": "[\"pool2-ipv4-ippool\"]"
+    spec:
+      serviceAccountName: database
+      containers:
+      - name: database
+        image: calico/yaobank-database:certification
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 2379
+        command: ["etcd"]
+        args:
+          - "-advertise-client-urls"
+          - "http://database:2379"
+          - "-listen-client-urls"
+          - "http://0.0.0.0:2379"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: summary
+  namespace: yaobank
+  labels:
+    app: summary
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: summary
+    
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: summary
+  namespace: yaobank
+  labels:
+    app: yaobank
+    database: reader
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summary
+  namespace: yaobank
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: summary
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: summary
+        version: v1
+      annotations:
+        "cni.projectcalico.org/ipv4pools": "[\"pool2-ipv4-ippool\"]"
+    spec:
+      serviceAccountName: summary
+      containers:
+      - name: summary
+        image: calico/yaobank-summary:certification
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer
+  namespace: yaobank
+  labels:
+    app: customer
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30180
+    name: http
+  selector:
+    app: customer
+    
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: customer
+  namespace: yaobank
+  labels:
+    app: yaobank
+    summary: reader
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+  namespace: yaobank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: customer
+        version: v1
+    spec:
+      serviceAccountName: customer
+      containers:
+      - name: customer
+        image: calico/yaobank-customer:certification
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+EOF
 
 ```
 

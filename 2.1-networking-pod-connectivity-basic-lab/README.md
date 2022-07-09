@@ -33,7 +33,6 @@ Use kubectl to exec into the pod so we can check the pod networking details.
 kubectl exec -ti -n yaobank $(kubectl get pods -n yaobank -l app=customer -o name) bash
 ```
 
-#### Examine the pod's networking
 
 First we will use `ip addr` to list the addresses and associated network interfaces that the pod sees.
 ```
@@ -99,30 +98,31 @@ We'll start by switching to the node where the customer pod is running. In our e
 ssh worker1
 ```
 
-#### 2.1.2.2. Examine interfaces
-Now we're on the node hosting the customer pod we'll take a look to examine the other end of the veth pair. In our example output earlier, the `@if9` indicated it should be interface number 9 in the host network namespace. (Your interface numbers may be different, but you should be able to follow along the same logic.)
+Now we're on the node hosting the customer pod. we'll examine the other end of the veth pair. In our example output earlier, the `@if13` indicated it should be interface number 13 in the host network namespace. (Your interface numbers may be different, but you should be able to follow along the same logic.)
 ```
 ip -c link
 ```
 ```
-ubuntu@worker1:~$ ip -c link
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-2: ens160: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
-    link/ether 00:50:56:37:2e:a2 brd ff:ff:ff:ff:ff:ff
+2: ens5: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc mq state UP mode DEFAULT group default qlen 1000
+    link/ether 02:58:11:57:a4:ef brd ff:ff:ff:ff:ff:ff
+    altname enp0s5
 3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default 
-    link/ether 02:42:40:0f:c5:68 brd ff:ff:ff:ff:ff:ff
-4: cali282de2964bf@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
-    link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netnsid 0
-7: cali4b8cf63cac1@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 02:42:7b:4d:bf:b8 brd ff:ff:ff:ff:ff:ff
+7: calid1d8cf42e5f@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP mode DEFAULT group default 
     link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netnsid 1
-8: cali2b0ff6bbf7d@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+9: calief1cea5cba1@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netnsid 0
+11: cali9feb40e484d@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP mode DEFAULT group default 
     link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netnsid 2
-9: calie965c96dc90@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+12: cali0053d475d0d@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP mode DEFAULT group default 
     link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netnsid 3
+13: calicd9cc437aea@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netnsid 4
 ```
 
-Looking at interface number 9 in this example we see `calie965c96dc90` which links to `@if3` in network namespace ID 3 (the customer pod's network namespace).  You may recall that interface 3 in the pod's network namespace was `eth0`, so this looks exactly as expected for the veth pair that connects the customer pod to the host network namespace.  
+Looking at interface number 13 in this example we see `calicd9cc437aea` which links to `@if3` in network namespace ID 4 (the customer pod's network namespace).  You may recall that interface 3 in the pod's network namespace was `eth0`, so this looks exactly as expected for the veth pair that connects the customer pod to the host network namespace.  
 
 You can also see the host end of the veth pairs to other pods running on this node, all beginning with `cali`.
 

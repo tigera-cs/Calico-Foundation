@@ -14,8 +14,9 @@ The prerequisite to this lab is completing Lab1, which is installing Calico CNI 
 
 We'll start by examining what the network looks like from the pod's point of view. Each pod get's its own Linux network namespace, which you can think of as giving it an isolated copy of the Linux networking stack. 
 
-#### Find the name and location of the customer pod
-Let's find some details about the customer pod using the following command.
+
+We need to find the name and location of the customer pod the customer pod using the following command.
+
 ```
 kubectl get pods -n yaobank -l app=customer -o wide
 ```
@@ -24,34 +25,35 @@ NAME                        READY   STATUS    RESTARTS   AGE     IP          NOD
 customer-68d67b588d-w5zhr   1/1     Running   0          8m58s   10.48.0.7   ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
 ```
 
-Note the node on which the pod is running on (`worker1` in this example.)
+Note the node on which the pod is running on (`ip-10-0-1-30.eu-west-1.compute.internal` in this example.)
 
-#### 2.1.1.2. Exec into the customer pod
 Use kubectl to exec into the pod so we can check the pod networking details. 
+
 ```
 kubectl exec -ti -n yaobank $(kubectl get pods -n yaobank -l app=customer -o name) bash
 ```
 
-#### 2.1.1.3. Examine the pod's networking
+#### Examine the pod's networking
+
 First we will use `ip addr` to list the addresses and associated network interfaces that the pod sees.
 ```
 ip addr
 ```
 ```
-root@customer-5df6b999fb-cf7jl:/app# ip addr
+root@customer-68d67b588d-w5zhr:/app# ip addr
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
-3: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
-    link/ether 1a:ce:f0:6c:20:00 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-    inet 10.48.0.67/32 scope global eth0
+3: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP group default 
+    link/ether 8e:14:b1:d0:60:ad brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.48.0.7/32 scope global eth0
        valid_lft forever preferred_lft forever
 ```
 
 The key things to note in this output are:
 * There is a `lo` loopback interface with an IP address of `127.0.0.1`. This is the standard loopback interface that every network namespace has by default. You can think of it as `localhost` for the pod itself.
-* There is an `eth0` interface which has the pods actual IP address, `10.48.0.67`. Notice this matches the IP address that `kubectl get pods` returned earlier.
+* There is an `eth0` interface which has the pods actual IP address, `10.48.0.7`. Notice this matches the IP address that `kubectl get pods` returned earlier.
 
 Next let's look more closely at the interfaces using `ip link`.  We will use the `-c` option, which colours the output to make it easier to read.
 
@@ -59,17 +61,17 @@ Next let's look more closely at the interfaces using `ip link`.  We will use the
 ip -c link
 ```
 ```
-root@customer-5df6b999fb-cf7jl:/app# ip -c link
+root@customer-68d67b588d-w5zhr:/app# ip -c link
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-3: eth0@if9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
-    link/ether 1a:ce:f0:6c:20:00 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: eth0@if13: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 8e:14:b1:d0:60:ad brd ff:ff:ff:ff:ff:ff link-netnsid 0
 ```
 
 Look at the `eth0` part of the output. The key things to note are:
 * The `eth0` interface is interface number 3 in the pod's network namespace.
 * `eth0` is a link to the host network namespace (indicated by `link-netnsid 0`). i.e. It is the pod's side of the veth pair (virtual ethernet pair) that connects the pod to the host's networking.
-* The `@if9` at the end of the interface name is the interface number of the other end of the veth pair within the host's network namespaces. In this example, interface number 9.  Remember this for later. We will take look at the other end of the veth pair shortly.
+* The `@if13` at the end of the interface name is the interface number of the other end of the veth pair within the host's network namespaces. In this example, interface number 13.  Remember this for later. We will take look at the other end of the veth pair shortly.
 
 Finally, let's look at the routes the pod sees.
 
@@ -77,7 +79,7 @@ Finally, let's look at the routes the pod sees.
 ip route
 ```
 ```
-root@customer-5df6b999fb-cf7jl:/app# ip route
+root@customer-68d67b588d-w5zhr:/app# ip route
 default via 169.254.1.1 dev eth0 
 169.254.1.1 dev eth0  scope link 
 ```

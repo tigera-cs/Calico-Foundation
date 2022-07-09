@@ -126,44 +126,50 @@ Looking at interface number 13 in this example we see `calicd9cc437aea` which li
 
 You can also see the host end of the veth pairs to other pods running on this node, all beginning with `cali`.
 
-#### 2.1.2.3. Examine routes
-First let's remind ourselves of the `customer` pod's IP address:
+
+Let examine the node routing table. First let's remind ourselves of the `customer` pod's IP address.
+
 ```
 kubectl get pods -n yaobank -l app=customer -o wide
 ````
+```
+NAME                        READY   STATUS    RESTARTS   AGE   IP          NODE                                      NOMINATED NODE   READINESS GATES
+customer-68d67b588d-w5zhr   1/1     Running   0          53m   10.48.0.7   ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
+```
 
-Now lets look at the routes on the host.
+Now lets look at the routes on the node, where the customer pod is running. SSH into the node.
+
 ```
 ip route
 ```
 ```
-ubuntu@worker1:~$ ip route
-default via 10.0.0.254 dev ens160 proto dhcp src 10.0.0.11 metric 100 
-10.0.0.0/24 dev ens160 proto kernel scope link src 10.0.0.11 
-10.0.0.254 dev ens160 proto dhcp scope link src 10.0.0.11 metric 100 
-10.48.0.64 dev cali282de2964bf scope link 
-blackhole 10.48.0.64/26 proto bird 
-10.48.0.65 dev cali4b8cf63cac1 scope link 
-10.48.0.66 dev cali2b0ff6bbf7d scope link 
-10.48.0.67 dev calie965c96dc90 scope link 
-10.48.0.128/26 via 10.0.0.12 dev ens160 proto bird 
+default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.30 metric 100 
+10.0.1.0/24 dev ens5 proto kernel scope link src 10.0.1.30 
+10.0.1.1 dev ens5 proto dhcp scope link src 10.0.1.30 metric 100 
+blackhole 10.48.0.0/26 proto bird 
+10.48.0.1 dev calid1d8cf42e5f scope link 
+10.48.0.3 dev calief1cea5cba1 scope link 
+10.48.0.5 dev cali9feb40e484d scope link 
+10.48.0.6 dev cali0053d475d0d scope link 
+10.48.0.7 dev calicd9cc437aea scope link 
+10.48.0.192/26 via 10.0.1.31 dev ens5 proto bird 
 172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
 ```
 
-In this example output, we can see the route to the customer pod's IP (`10.48.0.67`) is via the `calie965c96dc90` interface, the host end of the veth pair for the customer pod. You can see similar routes for each of the IPs of the other pods hosted on this node. It's these routes that tell Linux where to send traffic that is destined to a local pod on the node.
+In this example output, we can see the route to the customer pod's IP `10.48.0.7` is via the `calicd9cc437aea` interface, the host end of the veth pair for the customer pod. You can see similar routes for each of the IPs of the other pods hosted on this node. It's these routes that tell Linux where to send traffic that is destined to a local pod on the node.
 
 We can also see several routes labelled `proto bird`. These are routes to pods on other nodes that Calico has learned over BGP. 
 
-To understand these better, consider this route in the example output above `10.48.0.128/26 via 10.0.0.12 dev ens160 proto bird`.  It indicates pods with IP addresses falling within the `10.48.0.128/26` CIDR can be reached via `10.0.0.12` (which is worker2) through the `ens160` network interface (the host's main interface to the rest of the network). You should see similar routes in your output for each node.
+To understand these better, consider this route in the example output above `10.48.0.192/26 via 10.0.1.31 dev ens5 proto bird `.  It indicates pods with IP addresses falling within the `10.48.0.192/26` CIDR can be reached via `10.0.1.31` (which is worker2) through the `ens5` network interface (the host's main interface to the rest of the network). You should see similar routes in your output for each node.
 
 Calico uses route aggregation to reduce the number of routes when possible. (e.g. `/26` in this example). The `/26` corresponds to the default block size that Calico IPAM (IP Address Management) allocates on demand as nodes need pod IP addresses. (If desired, the block size can be configured in Calico IPAM settings.)  
 
-You can also see the `blackhole 10.48.0.64/26 proto bird` route. The `10.48.0.64/26` corresponds to the block of IPs that Calico IPAM allocated on demand for this node. This is the block from which each of the local pods got their IP addresses. The blackhole route tells Linux that if it can't find a more specific route for an individual IP in that block then it should discard the packet (rather than sending it out the default route to the network). You will only see traffic that hits this rule if something is trying to send traffic to a pod IP that doesn't exist, for example sending traffic to a recently deleted pod.
+You can also see the `blackhole 10.48.0.0/26 proto bird` route. The `10.48.0.0/26` corresponds to the block of IPs that Calico IPAM allocated on demand for this node. This is the block from which each of the local pods got their IP addresses. The blackhole route tells Linux that if it can't find a more specific route for an individual IP in that block then it should discard the packet (rather than sending it out the default route to the network). You will only see traffic that hits this rule if something is trying to send traffic to a pod IP that doesn't exist, for example sending traffic to a recently deleted pod.
 
 If Calico IPAM runs out of blocks to allocate to nodes, then it will use unused IPs from other nodes' blocks. These will be announced over BGP as more specific routes, so traffic to pods will always find its way to the right host.
 
-### 2.2.4. Exit from the node
-We've finished our tour of the Customer pod's host's view of the network. Remember exit out of the exec to return to the master node.
+
+We've finished our tour of the Customer pod's host's view of the network. Remember exit back to the bastion node.
 ```
 exit
 ```

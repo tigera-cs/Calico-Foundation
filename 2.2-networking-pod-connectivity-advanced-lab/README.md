@@ -172,67 +172,69 @@ spec:
 EOF
 
 ```
-You should see the following output when you apply the new bgp peer resource. 
+You should see the following output when you apply the new BGPPeer resource. 
 
 ```
-ubuntu@host1:~$ calicoctl apply -f 2.2-bgp-peer.yaml
-Successfully applied 1 'BGPPeer' resource(s)
+bgppeer.projectcalico.org/bgppeer-global-64512 created
 ```
 
-#### 2.2.3.3. Examine the new BGP peering status
-Switch to worker1:
+Let's examine the BGP peering from worker1 node again by doing an SSH into the node.
+
 ```
 ssh worker1
 ```
 
-Check the status of Calico on the node:
-```bash
+Check the status of Calico on the node.
+```
 sudo calicoctl node status
 ```
 ```
-ubuntu@worker1:~$ sudo calicoctl node status
 Calico process is running.
 
 IPv4 BGP status
-+--------------+-------------------+-------+------------+-------------+
-| PEER ADDRESS |     PEER TYPE     | STATE |   SINCE    |    INFO     |
-+--------------+-------------------+-------+------------+-------------+
-| 10.0.0.10    | node-to-node mesh | up    | 2019-11-13 | Established |
-| 10.0.0.12    | node-to-node mesh | up    | 2019-11-13 | Established |
-| 10.0.0.20    | global            | up    | 04:28:42   | Established |
-+--------------+-------------------+-------+------------+-------------+
++--------------+-------------------+-------+----------+-------------+
+| PEER ADDRESS |     PEER TYPE     | STATE |  SINCE   |    INFO     |
++--------------+-------------------+-------+----------+-------------+
+| 10.0.1.20    | node-to-node mesh | up    | 17:44:47 | Established |
+| 10.0.1.31    | node-to-node mesh | up    | 17:44:46 | Established |
+| 10.0.1.10    | global            | up    | 20:35:04 | Established |
++--------------+-------------------+-------+----------+-------------+
 
 IPv6 BGP status
 No IPv6 peers found.
 ```
 
-The output shows that Calico is now peered with host1 (`10.0.0.20`). This means Calico can share routes to and learn routes from host1.
+The output above shows that Calico is now peered with the bastion node (`10.0.1.10`). This means Calico can share routes to and learn routes from bastion node.
 
-In a real-world on-prem deployment you would typically configure Calico nodes within a rack to peer with the ToRs (Top of Rack) routers, and the ToRs are then connected to the rest of the enterprise or data center network. In this way pods, if desired, pods can be reached from anywhere in then network. You could even go as far as giving some pods public IP address and have them addressable from the internet if you wanted to.
+In a real-world on-prem deployment you would typically configure Calico nodes within a rack to peer with the ToRs (Top of Rack) routers, and the ToRs are then connected to the rest of the enterprise or data center network. In this way, if desired, pods can be reached from anywhere in then network. You could even go as far as giving some pods public IP address and have them addressable from the internet if you wanted to.
 
-We're done with adding the peers, so exit from worker1 to return back to master:
+We're done with adding the peers, so exit from worker1 to return back to bastion node.
 ```
 exit
 ```
 
-### 2.2.4. Configure a namespace to use externally routable IP addresses
+### Configure a namespace to use externally routable IP addresses
 
-Calico supports annotations on both namespaces and pods that can be used to control which IP Pool (or even which IP address) a pod will receive when it is created.  In this example we're going to create a namespace to host externally routable Pods.
+Calico supports annotations on both namespaces and pods that can be used to control which IPPool (or even which IP address) a pod will receive its address from when it is created. In this example, we're going to create a namespace to host externally routable Pods.
 
-#### 2.2.4.1. Create the namespace
 
-Examine the namespaces we're about to create:
-```
-more 2.2-namespace.yaml
-```
-Notice the annotation that will determine which IP Pool pods in the namespace will use.
+Let's create a namespace with the required Calico IPAM annotations. Examine the namespace configurations. Note how Calico IPAM annotation `cni.projectcalico.org/ipv4pools` is used with the name of IPPool `external-pool` to allocate IP addresses from IPPool `external-pool` to pods deployed in this namespace.
 
-Apply the namespace:
-```bash
-kubectl apply -f 2.2-namespace.yaml
 ```
+kubectl apply -f -<<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    cni.projectcalico.org/ipv4pools: '["external-pool"]'
+  name: external-ns
+EOF
+
 ```
-ubuntu@host1:~$ kubectl apply -f 2.2-namespace.yaml
+
+You should receive a message similar to the following.
+
+```
 namespace/external-ns created
 ```
 

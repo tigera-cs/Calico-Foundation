@@ -316,7 +316,10 @@ summary-dc858dd7b-mt5gv     1/1     Running   0          64s   10.48.128.1     i
 summary-dc858dd7b-pkt6l     1/1     Running   0          63s   10.48.128.192   ip-10-0-1-31.eu-west-1.compute.internal   <none>           <none>
 
 ```
-You can see that Pod ip address assignment is aligned with the intend defined in the updated manifest, assigning pods of a deployment to the correct ip pool.  Calico IPAM provides the flexibility as well of assigning ippools to namespaces or even in alignment with your topology to specific nodes or racks.
+
+You can see that Pod IP address assignment is aligned with the IPAM configurations defined in manifest above, assigning pods of a deployment to the correct IPPool. Calico IPAM provides the flexibility of assigning IPPools to namespaces, deployment, deamonset, etc. You can also implement topology based IP address assignment in which racks or nodes in specific racks receive their IP addresses from one or more specific IPPools. For more information, visit the following link.
+
+https://projectcalico.docs.tigera.io/networking/assign-ip-addresses-topology
 
 ### 2.3.3. Verify host routing
 

@@ -363,7 +363,7 @@ spec:
 EOF
 ```
 
-Check the status of the pods. Make sure all the pods are in RUNNING status.
+Check the status of the pods. Make sure all the pods are in Running status.
 
 ```
 watch kubectl get pods -n yaobank -o wide

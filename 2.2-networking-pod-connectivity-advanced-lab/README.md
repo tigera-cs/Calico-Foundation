@@ -9,21 +9,23 @@ In this lab, you will:
 * Configure Calico BGP Peering to connect with a network outside of the cluster
 * Configure a namespace to use externally routable IP addresses
 
-### 2.2.0. Before you begin
+### Before you begin
 
-This lab builds in the learning in Lab1 and Lab2. You should have by now your k8s cluster setup with Calico and the Yaobank sample application deployed. You should have a good understanding as well of basic k8s networking. 
+Please make sure you have completed the previous labs before starting this lab. You should have deployed Calico and the Yaobank sample application in your cluster. 
 
 
-### 2.2.1. Examine IP address ranges used by the cluster
+### Examine IP address ranges used by the cluster
 
-#### 2.2.1.1. Kubernetes configuration
-There are two address ranges that Kubernetes is normally configured with that are important to understand:
-* The cluster pod CIDR is the range of IP addresses Kubernetes is expecting to be assigned to pods in the cluster.
+
+When a Kubernetes cluster is bootstrapped, there are two address ranges that are configured. It is very important to understand these address ranges as they can't be changed once the cluster is created.
+
+* The cluster pod network CIDR is the range of IP addresses Kubernetes is expecting to be assigned to the pods in the cluster.
 * The services CIDR is the range of IP addresses that are used for the Cluster IPs of Kubernetes Sevices (the virtual IP that corresponds to each Kubernetes Service).
 
 These are configured at cluster creation time (e.g. as initial kubeadm configuration).
 
-You can find these values using the following command on the master node:
+You can find these values using the following command.
+
 ```bash
 kubectl cluster-info dump | grep -m 2 -E "service-cluster-ip-range|cluster-cidr"
 ```

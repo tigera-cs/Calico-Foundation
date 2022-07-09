@@ -290,30 +290,30 @@ EOF
 You should receive an output similar to the following.
 
 ```
-
+namespace/yaobank created
+service/database created
+serviceaccount/database created
+deployment.apps/database created
+service/summary created
+serviceaccount/summary created
+deployment.apps/summary created
+service/customer created
+serviceaccount/customer created
+deployment.apps/customer created
 ```
 
-The deployment pods already have ip addresses assigned so we will need to delete the old pods, which will trigger kubernetes scheduler to new pod in conformance with the deployment manifest (the intent) and accordingly apply the ip pool binding.
-
-```
-kubectl delete -n yaobank pod $(kubectl get pod -l app=customer -n yaobank -o jsonpath='{.items[0].metadata.name}')
-kubectl delete -n yaobank pod $(kubectl get pod -l app=database -n yaobank -o jsonpath='{.items[0].metadata.name}')
-kubectl delete -n yaobank pod $(kubectl get pod -l app=summary -n yaobank -o jsonpath='{.items[0].metadata.name}')
-kubectl delete -n yaobank pod $(kubectl get pod -l app=summary -n yaobank -o jsonpath='{.items[1].metadata.name}')
-```
-
-
-
-Next, examine the Pods ip address assignment.
+Let's check on the Pods' ip address assignments.
 
 ```
 kubectl get pod -n yaobank -o wide
+```
 
-NAME                        READY   STATUS    RESTARTS   AGE     IP              NODE           NOMINATED NODE   READINESS GATES
-customer-84c7855fd4-55r26   1/1     Running   0          14m     10.48.110.14    ip-10-0-0-11   <none>           <none>
-database-56fb9496bb-mdch5   1/1     Running   0          13m     10.48.194.175   ip-10-0-0-12   <none>           <none>
-summary-7f89fbcc7c-tsqjz    1/1     Running   0          24m     10.48.194.174   ip-10-0-0-12   <none>           <none>
-summary-7f89fbcc7c-vl9px    1/1     Running   0          2m56s   10.48.177.96    ip-10-0-0-10   <none>           <none>
+```
+NAME                        READY   STATUS    RESTARTS   AGE   IP              NODE                                      NOMINATED NODE   READINESS GATES
+customer-68d67b588d-hn95n   1/1     Running   0          63s   10.48.0.8       ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
+database-769f6644c5-t925v   1/1     Running   0          64s   10.48.128.0     ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
+summary-dc858dd7b-mt5gv     1/1     Running   0          64s   10.48.128.1     ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
+summary-dc858dd7b-pkt6l     1/1     Running   0          63s   10.48.128.192   ip-10-0-1-31.eu-west-1.compute.internal   <none>           <none>
 
 ```
 You can see that Pod ip address assignment is aligned with the intend defined in the updated manifest, assigning pods of a deployment to the correct ip pool.  Calico IPAM provides the flexibility as well of assigning ippools to namespaces or even in alignment with your topology to specific nodes or racks.

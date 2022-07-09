@@ -108,12 +108,14 @@ We now have the followings:
 
 ### Configure Calico BGP Peering to connect with a network outside of the cluster
 
-#### 2.2.3.1. Examine BGP peering status
+Let's start by examining Calico BGP peering status on one of the nodes. There are different methods to find BGP status information, but all these methods require access to `calicoctl` in some form. The reason for this is that bird requires privileged access to the local bird socket to provide status information. In this excerise, we are using `calicoctl` configured as a binary on the node.
 
-Switch to worker1:
+SSH into worker1.
+
 ```
 ssh worker1
 ```
+Download `calicoctl` binary and make in executable. Please note that `calicoctl` uses Kubernetes kubeconfig file to authenticate to the cluster and run commands against the Kubernetes API. The kubeconfig file is already configured for you.
 
 ```
 curl -L https://github.com/projectcalico/calico/releases/download/v3.23.2/calicoctl-linux-amd64 -o calicoctl
@@ -124,7 +126,7 @@ sudo mv calicoctl /usr/local/bin
 
 
 Check the status of Calico on the node:
-```bash
+```
 sudo calicoctl node status
 ```
 ```

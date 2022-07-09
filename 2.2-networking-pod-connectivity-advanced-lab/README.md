@@ -5,7 +5,7 @@ This is the 2nd lab in a series of labs exploring k8s networking. This lab is fo
 In this lab, you will:
 
 * Examine IP address ranges used by the cluster
-* Create additional Calico IP Pools
+* Create an additional Calico IPPool
 * Configure Calico BGP Peering to connect with a network outside of the cluster
 * Configure a namespace to use externally routable IP addresses
 
@@ -37,10 +37,10 @@ kubectl cluster-info dump | grep -m 2 -E "service-cluster-ip-range|cluster-cidr"
 ```
 
 
-### Create additional Calico IP Pools
+### Create an additional Calico IPPool
 
-When Calico is deployed, a defaul IPPOOL is created in the cluster based on the address family (IPv4-IPv6) enabled in the cluster. This cluster runs only IPv4. As a result, we will only have an IPPOOL for IPv4. By default, Calico creates a default IPPOOL for the whole cluster pod network CIDR range. However, this can be customized and a subset of pod network CIDR can be used for the default IPPOOL.\
-Let's find the configured IPPOOL in this cluster using the following command.
+When Calico is deployed, a defaul IPPool is created in the cluster based on the address family (IPv4-IPv6) enabled in the cluster. This cluster runs only IPv4. As a result, we will only have an IPPool for IPv4. By default, Calico creates a default IPPool for the whole cluster pod network CIDR range. However, this can be customized and a subset of pod network CIDR can be used for the default IPPool.\
+Let's find the configured IPPool in this cluster using the following command.
 
 ```
 kubectl get ippools -o yaml
@@ -83,12 +83,12 @@ We have the following address ranges configured in this cluster.
 | 10.49.0.0/16 | Kubernetes Service Network (via kubeadm `--service-cidr`) |
 
 
-### 2.2.2. Create additional Calico IP Pools
-One use of Calico IP Pools is to distinguish between different ranges of addresses that different routablity scopes. If you are operating at very large scales then IP addresses are precious. You might want to have a range of IPs that is only routable within the cluster, and another range of IPs that is routable across your enterprise. In that case, you can choose which pods get IPs from which range depending on whether workloads from outside of the cluster need direct access to the pods or not.
 
-We'll simulate this use case in this lab by creating a second IP Pool to represent the externally routable pool.  (And we've already configured the underlying network to no allow routing of the existing IP Pool outside of the cluster.)
+Calico provides a sophiscated and powerful IPAM solution, which enables you allocate and manage IP addresses for a variety of use cases and requirements. 
+One of the use cases of Calico IPPool is to distinguish between different ranges of IP addresses that have different routablity scopes. If you are operating at a large scale, then IP addresses are precious resources. You might want to have a range of IPs that is only routable within the cluster, and another range of IPs that is routable across your enterprise. In that case, you can choose which pods get IPs from which range depending on whether workloads from outside of the cluster need direct access to the pods or not.
 
-#### 2.2.2.1. Create externally routable IP Pool
+We'll simulate this use case in this lab by creating a second IPPool to represent the externally routable pool.  (And we've already configured the underlying network to no allow routing of the existing IPPool outside of the cluster.)
+
 
 We're going to create a new pool for `10.48.2.0/24` that is externally routable.
 ```

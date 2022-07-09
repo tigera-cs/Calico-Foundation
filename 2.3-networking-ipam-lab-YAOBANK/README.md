@@ -6,7 +6,7 @@ In this lab, you will:
 
 * Check existing IPPools and create a new IPPool
 * Update the yaobank deployments to receive IP addresses from the new IPPool
-* Verify the host routing
+
 
 ### Check existing IPPools and create a new IPPool
 
@@ -321,24 +321,5 @@ You can see that Pod IP address assignment is aligned with the IPAM configuratio
 
 https://projectcalico.docs.tigera.io/networking/assign-ip-addresses-topology
 
-### 2.3.3. Verify host routing
-
-Let's check host routing to understand the effect of the subnetting and ip address assignment we have done to routing.
-
-From the output in section 2.3.2, you can see that one customer Pod is running on worker1 and the remaining pods are running on the master node and worker 2. Let's examine the routing table of the master node.
-
-```
-ip route
-
-10.48.110.14 dev calif0d1818d01e scope link 
-blackhole 10.48.110.0/26 proto bird 
-10.48.177.64/26 via 10.0.0.10 dev eth0 proto bird 
-10.48.194.128/26 via 10.0.0.12 dev eth0 proto bird 
-```
-
-Examine the output of the routing table that is relevant to our deployment:
-* specific routes point to the veth interfaces connecting to local pods
-* blackhole route is created for the ip block local to the host (saying do route traffic for the local/26 block to any other node)
-* routes to the pod on worker2 and master are learned via BPG and a /26 block advertisement from the nodes
 
 > __Congratulations! You have completed you Calico IPAM lab.__ 

@@ -85,16 +85,16 @@ default via 169.254.1.1 dev eth0
 ```
 This shows that the pod's default route is out over the `eth0` interface. i.e. Anytime it wants to send traffic to anywhere other than itself, it will send the traffic over `eth0`.
 
-#### 2.1.1.4. Exit from the customer pod
-We've finished our tour of the pod's view of the network, so we'll exit out of the exec to return to host1.
+We've finished our tour of the pod's view of the network, so we'll exit out of the exec to return to bastion host.
+
 ```
 exit
 ```
 
-### 2.1.2. Examine the host's network namespace
+### Examine the host's network namespace
 
-#### 2.1.2.1. SSH into the customer pod's host node
-We'll start by switching to the node where the customer pod is running. In our example earlier this was worker 1. (If you've forgotten which node it was for you then repeat step 2.1.1. above to find the node.)
+We'll start by switching to the node where the customer pod is running. In our example earlier this was 'worker1'. SSH into worker1. 
+
 ```
 ssh worker1
 ```

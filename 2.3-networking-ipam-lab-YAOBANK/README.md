@@ -1,13 +1,13 @@
 ## 2.3. Networking: Calico-IPAM Lab
 
-This is the 3rd lab in a series of labs exploring k8s networking. It explores k8s ip adress management via Calico IPAM. deployment in subsequent labs.
+This is the 3rd lab in a series of labs exploring k8s networking. It explores k8s ip adress management via Calico IPAM.
 
 In this lab, you will:
-2.3.1. Check existing IP Pools  and create new IP Pools 
-2.3.2. Update the yaobank deployments with the new IP Pools
-2.3.3. Verify host routing
+* Check existing IPPools and create new IPPools 
+* Update the yaobank deployments with the new IPPools
+* Verify the host routing
 
-### 2.3.1. Check existing IP Pools  and create new IP Pools
+### Check existing IPPools and create new IPPools 
 
 Verify that the existing ippool.
 

@@ -26,19 +26,24 @@ These are configured at cluster creation time (e.g. as initial kubeadm configura
 
 You can find these values using the following command.
 
-```bash
+```
 kubectl cluster-info dump | grep -m 2 -E "service-cluster-ip-range|cluster-cidr"
 ```
+
 ```
-ubuntu@host1:~/calico/lab-manifests$ kubectl cluster-info dump | grep -m 2 -E "service-cluster-ip-range|cluster-cidr"
+kubectl cluster-info dump | grep -m 2 -E "service-cluster-ip-range|cluster-cidr"
                             "--service-cluster-ip-range=10.49.0.0/16",
                             "--cluster-cidr=10.48.0.0/16",
 ```
 
-#### 2.2.1.2. Calico configuration
-It is also important to understand the IP Pools that Calico has been configure with, which offer finer grained control over IP address ranges to be used by pods in the cluster.
-```bash
-calicoctl get ippools
+
+### Create additional Calico IP Pools
+
+When Calico is deployed, a defaul IPPOOL is created in the cluster based on the address family (IPv4-IPv6) enabled in the cluster. This cluster runs only IPv4. As a result, we will only have an IPPOOL for IPv4. By default, Calico creates a default IPPOOL for the whole cluster pod network CIDR range. However, this can be customized and a subset of pod network CIDR can be used for the default IPPOOL.\
+Let's find the configured IPPOOL in this cluster using the following command.
+
+```
+kubectl get ippools
 ```
 ```
 ubuntu@host1:~/calico/lab-manifests$ calicoctl get ippools

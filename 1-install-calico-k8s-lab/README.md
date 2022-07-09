@@ -377,7 +377,7 @@ summary-748b977d44-7vzts    1/1     Running   0          16m   10.48.0.194   ip-
 
 ## Test Yaobank application connectivity
 
-For now, the application we deployed is only accesible outside the cluster by means of a NodePort. We can try the following port on any of the cluster nodes. Following is trying the NodePort on the master node.
+For now, the application we deployed is only accesible from outside the cluster through a NodePort. We can try the following port on any of the cluster nodes to access the customer pod, which is the frontend app. Following is trying the NodePort on the master node.
 
 ```
 curl 10.0.1.20:30180

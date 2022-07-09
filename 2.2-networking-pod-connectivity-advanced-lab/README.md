@@ -74,7 +74,7 @@ metadata:
 
 In this cluster Calico has been configured to allocate IP addresses for pods from the `10.48.0.0/24` CIDR (which is a subset of the `10.48.0.0/16` configured on Kubernetes).
 
-Overall we have the following address ranges:
+We have the following address ranges configured in this cluster.
 
 | CIDR         |  Purpose                                                  |
 |--------------|-----------------------------------------------------------|

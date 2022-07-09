@@ -59,7 +59,7 @@ kubectl create -f https://projectcalico.docs.tigera.io/manifests/tigera-operator
 
 ```
 
-Check the operator has been successfully rolled out:
+Check the operator has been successfully rolled out.
 
 ```
 kubectl rollout status -n tigera-operator deployment tigera-operator

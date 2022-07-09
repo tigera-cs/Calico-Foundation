@@ -1,7 +1,7 @@
 # Lab scenario
 
 This lab is composed of a cluster of three nodes including two worker nodes and a master node. There is also a bastion node from where you access the environment using kubectl/calicoctl and simulate external connectivity. Kubernetes has been preinstalled, but Container Network Interface (CNI) is not installed yet.\
-Please note that the node name can change based on you lab instance, but the following node name to IP address mappings stay the same on all the labs.
+Please note that the node names can change based on you lab instance, but the following node name to IP address mappings stay the same on all the labs.
 
 * Bastion: 10.0.1.10
 * Control1(master): 10.0.1.20

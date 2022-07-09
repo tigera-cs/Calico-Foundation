@@ -88,14 +88,13 @@ spec:
 EOF
 
 ```
+```
 calicoctl get ippools
 ```
-ubuntu@host1:~/calico/lab-manifests$ calicoctl apply -f 2.2-pool.yaml
-Successfully applied 1 'IPPool' resource(s)
-ubuntu@host1:~/calico/lab-manifests$ calicoctl get ippools
+```
 NAME                  CIDR           SELECTOR   
 default-ipv4-ippool   10.48.0.0/24   all()      
-external-pool         10.48.2.0/24   all()      
+external-pool         10.48.2.0/24   all()       
 ```
 
 We now have:
@@ -103,8 +102,8 @@ We now have:
 | CIDR         |  Purpose                                                  |
 |--------------|-----------------------------------------------------------|
 | 10.48.0.0/16 | Kubernetes Pod Network (via kubeadm `--pod-network-cidr`) |
-| 10.48.0.0/24 | Calico - Initial default IP Pool                          |
-| 10.48.2.0/24 | Calico - External IP Pool (externally routable)           |
+| 10.48.0.0/24 | Calico - Initial default IPPool                          |
+| 10.48.2.0/24 | Calico - External IPPool (externally routable)           |
 | 10.49.0.0/16 | Kubernetes Service Network (via kubeadm `--service-cidr`) |
 
 ### 2.2.3. Configure Calico BGP peering

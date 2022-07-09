@@ -148,7 +148,7 @@ EOF
 
 ````
 
-Confirm that all of the pods are running with the following command. 
+Confirm that the APIServer pods are running with the following command. 
 
 ```
 watch kubectl get pods -n calico-apiserver

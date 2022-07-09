@@ -95,7 +95,9 @@ pool2-ipv4-ippool     10.48.128.0/24   all()
 
 ### Update the yaobank deployments to receive IP addresses from the new IPPool
 
-There is a new version of the yaobank application that is configured for specific IP address treatment. We have configured the yaobank manifes with the necessary annotation to use the newly created IPPool. Examine the annotation section of the deployments below and get yourself familiar with the configurations. Before deploying the new version yaobank application, let's delete the old version to avoid any conflicts.
+There is a new version of the yaobank application that is configured for specific IP address treatment. We have configured the yaobank manifest with the necessary annotation to use the newly created IPPool. Note that annotations are configured only for summary and database deployment. Customer deployment can receive its IP address from any IPPool. Examine the annotation section of the deployments below and get yourself familiar with the configurations. 
+
+Before deploying the new version of yaobank application, let's delete the old version to avoid any conflicts.
 
 ```
 kubectl delete namespace yaobank
@@ -105,6 +107,7 @@ You should receive an output similar to the following. This command might take a
 ```
 namespace "yaobank" deleted
 ```
+Now implement the new version of the app.
 
 ```
 kubectl apply -f -<<EOF
@@ -284,28 +287,10 @@ EOF
 
 ```
 
-```
-    metadata:
-      annotations:
-        "cni.projectcalico.org/ipv4pools": "[\"pool2-ipv4-ippool\"]"
+You should receive an output similar to the following.
 
 ```
 
-The annotation explicitly assigns ip pool1 to customer deployment and pool2 to summary and database deployments. Let's apply the manifest and examine the outcome.
-
-```
-kubectl apply -f 2.3-yaobank-ipam.yaml 
-
-namespace/yaobank unchanged
-service/database unchanged
-serviceaccount/database unchanged
-deployment.extensions/database configured
-service/summary unchanged
-serviceaccount/summary unchanged
-deployment.extensions/summary configured
-service/customer unchanged
-serviceaccount/customer unchanged
-deployment.extensions/customer configured
 ```
 
 The deployment pods already have ip addresses assigned so we will need to delete the old pods, which will trigger kubernetes scheduler to new pod in conformance with the deployment manifest (the intent) and accordingly apply the ip pool binding.

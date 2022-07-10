@@ -249,25 +249,43 @@ As we have learned in Lab3, services are serviced by kube-proxy, which load-bala
 Verify external access connectivity from your bastion node to the customer service `NodePort:30180`.
 
 ```
-http://54.187.212.58:30180/
-
-Welcome to YAO Bank
-Name: Spike Curtis
-Balance: 2389.45
-Log Out >>
+curl 10.0.1.30:30180
 ```
-The IP will be different in your lab environment.
-In our case, this is the master public ip, then kube proxy takes care of request. 
+
+```
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>YAO Bank</title>
+    <style>
+    h2 {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    h1 {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    p {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    </style>
+  </head>
+  <body>
+        <h1>Welcome to YAO Bank</h1>
+        <h2>Name: Spike Curtis</h2>
+        <h2>Balance: 2389.45</h2>
+        <p><a href="/logout">Log Out >></a></p>
+  </body>
+</html
+```
 
 
-### 4.1.2. Apply a simple Calico Policy
-
-Let's limit connectivity on the Nginx pods to only allow inbound traffic to port 80 from the CentOS pod.
-Examine the manifest before applying it:
+Let's limit connectivity on the summary pods to only allow inbound traffic to port 80 from the customer pod.
+Examine the manifest before applying it.
 
 ``` 
-cat 4.1-customer2summary.yaml 
-
+kubectl apply -f -<<EOF
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
@@ -286,15 +304,12 @@ spec:
       - 80
   types:
     - Ingress
-```
-
-The policy allows matches the label app=summary which is assigned to summary pods, and allows TCP port 80 traffic from source matching the label app=customer which is assigned to customer pods.
-Let's apply our first Calico network policy and examine the effect.
+EOF
 
 ```
-calicoctl apply -f 4.1-customer2summary.yaml 
-Successfully applied 1 'NetworkPolicy' resource(s)
-```
+
+The policy applies to pods, which has the label app=summary in the yaobank namespace. The policy allows TCP port 80 traffic from the source matching the label app=customer in the yaobank namespace.
+
 
 Now, let's repeat the tests we have done in section 4.1.1.
 You should have the following behaviour:

@@ -245,7 +245,7 @@ curl 10.0.1.30:30180
 
 ### Advertise service external IP addresses
 
-If you want to advertise a service using an IP address outside of the service cluster IP range, you can configure the service to have one or more `externalIPs`.
+If you want to advertise a service using an IP address outside of the cluster service CIDR range, you can configure the service to have one or more `externalIPs`.
 
 
 Before we begin, examine the kubernetes services in the `yaobank` kubernetes namespace.

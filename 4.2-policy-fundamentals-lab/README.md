@@ -209,7 +209,7 @@ EOF
 Now repeat the same test and DNS lookups should be successful.
 
 ```
-kubectl exec -ti $CUSTOMER_POD -n yaobank -c customer bash
+kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 ```
 
 ```

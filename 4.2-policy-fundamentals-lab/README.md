@@ -304,8 +304,10 @@ EOF
 Notice that the egress rules are excessively liberal allowing outbound connection to any destination. While this may be required for some workloads, in most cases specific restrictive rules are required to limit access. We will look at how this can be locked down further by the cluster operator or security admin in the next module.
 
 
-#### 4.2.4.3. Verify everything is now working
-Now try accessing the Yaobank front end from the browser, it should work again. By defining the cluster wide default deny we've forced the user to follow best practices and define network policy for all the necessary microservices.
+Try accessing the yaobank frontend again from the bastion node. It should work. By defining the cluster wide default deny, we've forced the user to follow best practices and define network policy for all the necessary microservices.
 
+```
+curl 10.0.1.30:30180
+```
 
 > __Congratulations! You have completed you fundamental Calico policies lab.__

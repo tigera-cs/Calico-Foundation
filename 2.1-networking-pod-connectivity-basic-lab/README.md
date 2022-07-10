@@ -15,7 +15,7 @@ The prerequisite to this lab is completing Lab1, which is installing Calico CNI 
 We'll start by examining what the network looks like from the pod's point of view. Each pod get's its own Linux network namespace, which you can think of as giving it an isolated copy of the Linux networking stack. 
 
 
-We need to find the name and location of the customer pod the customer pod using the following command.
+Let's find the name and location of the customer pod using the following command.
 
 ```
 kubectl get pods -n yaobank -l app=customer -o wide

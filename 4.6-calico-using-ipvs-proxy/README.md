@@ -56,6 +56,12 @@ for i in $(kubectl get pods -n kube-system -o name | grep kube-proxy) ; do kubec
 
 If you are able to find the mentioned String in the logs, IPVS mode is being used by the cluster. You can also check the detailed logs for the IPVS mode.
 
+```
+I0710 22:26:27.584923       1 server_others.go:274] Using ipvs Proxier.
+I0710 22:26:37.773549       1 server_others.go:274] Using ipvs Proxier.
+I0710 22:26:45.418173       1 server_others.go:274] Using ipvs Proxier.
+```
+
 ## Verify and Debug IPVS
 
 Users can use ipvsadm tool to check whether kube-proxy are maintaining IPVS rules correctly. This needs to be done from any of the cluster nodes and not the bastion node. WeIn this example, we will use the kubernetes APIserver. You can follow the below procedure to check on the IPVS loadbalancing rules for other services in the cluster.

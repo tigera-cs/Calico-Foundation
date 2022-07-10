@@ -7,7 +7,7 @@ In this lab you will:
 * Simulate a compromise
 * Create Kubernetes Network Policy to limit access
 * Create a Global Default Deny and allow Authorized DNS
-* Create a network policy to the rest of the sample application
+* Create a network policy for the rest of the sample application (yaobank)
 
 
 ### Simulate a compromise
@@ -249,7 +249,7 @@ Exit the customer pod.
 exit
 ```
 
-### Create a network policy to the rest of the sample application
+### Create a network policy for the rest of the sample application (yaobank)
 
 We've now deployed a global default deny policy across the cluster and allowed DNS queries to kube-dns (CoreDNS). We also defined a specific policy for the `database` pod in the yaobank namesapce, but we haven't yet defined policies for the `customer` or `summary` pods.
 

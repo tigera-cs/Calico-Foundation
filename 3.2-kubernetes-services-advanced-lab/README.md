@@ -349,9 +349,7 @@ summary    ClusterIP   10.49.198.166   <none>        80/TCP         161m
 
 You should now see the external ip (`10.50.0.10`) assigned to the `customer` service.  We can now access the `customer` service from outside the cluster using the external ip address (10.50.0.10) we just assigned.
 
-#### 3.2.3.5. Verify we can access the service's external IP
-
-Connect to the `customer` service from the standalone node using the service external IP `10.50.0.10`.
+Connect to the `customer` service from the bastion node using the service external IP `10.50.0.10`.
 
 ```
 curl 10.50.0.10

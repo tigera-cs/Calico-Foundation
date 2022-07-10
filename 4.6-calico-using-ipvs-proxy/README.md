@@ -141,14 +141,16 @@ spec:
 EOF
 
 ```
-Examine the ClusterIP of `service-nginx` service
+Examine the ClusterIP of `service-nginx` service.
 
 ```
 kubectl get svc
-NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-kubernetes      ClusterIP   10.96.0.1      <none>        443/TCP   27h
-service-nginx   ClusterIP   10.99.170.70   <none>        80/TCP    115m
+```
 
+```
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+kubernetes      ClusterIP   10.49.0.1      <none>        443/TCP   24h
+service-nginx   ClusterIP   10.49.120.28   <none>        80/TCP    52s
 ```
 
 Now let us list the ipvs table and check how are service maps to the pods created using deployment. Blow output is trimmed for better understanding.

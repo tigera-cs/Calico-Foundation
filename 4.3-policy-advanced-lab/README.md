@@ -349,7 +349,7 @@ nginx_client_pod=$(kubectl get pods -n nginxapp -l app=nginx-client -o jsonpath=
 echo $nginx_client_pod
 kubectl exec -ti $nginx_client_pod -n nginxapp -- bash
 ```
-This the connection should succeed. Please note that the service IP address could be different for you.
+This time the connection should succeed. Please note that the service IP address could be different for you.
 
 ```
 curl 10.49.191.55

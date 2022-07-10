@@ -168,7 +168,7 @@ ssh worker1
 ```
 sudo ipvsadm -l | grep -A3 $(kubectl get svc service-nginx --no-headers | awk {'print $3'})
 ```
-Here ip-10-49-120-28.eu-west-1.co is the `service-nginx` service and below the service you can see the list of pods/endpoints. `rr` means the loadbalancing used is `round-robin`.
+Here `ip-10-49-120-28.eu-west-1.co` is the `service-nginx` service and below the service you can see the list of pods/endpoints. `rr` means the loadbalancing used is `round-robin`.
 
 ```
 TCP  ip-10-49-120-28.eu-west-1.co rr

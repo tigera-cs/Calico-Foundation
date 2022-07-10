@@ -246,7 +246,7 @@ EOF
 ```
 
 ```
-kubectl get pods -n nginxapp
+kubectl get pods -n nginxapp -o wide
 ```
 
 ```

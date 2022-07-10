@@ -1,12 +1,13 @@
 ## 4.2. Network Policy - Fundamentals
 
-This is the 2nd lab lab exploring Calico network policies and explores use cases of NetworkPolicy and GlobalNetworkPolicy for pod and services communication.
+In this 2nd lab, we will explore the use cases of NetworkPolicy and GlobalNetworkPolicy for pod and service communication.
 
 In this lab you will:
-4.2.1. Simulate a compromise
-4.2.2. Create Kubernetes Network Policy limiting access
-4.2.3. Create a Global Default Deny and allow Authorized DNS
-4.2.4. Create a network policy to the rest of the sample application
+
+* Simulate a compromise
+* Create Kubernetes Network Policy limiting access
+* Create a Global Default Deny and allow Authorized DNS
+* Create a network policy to the rest of the sample application
 
 ### 4.2.0. Before you begin
 

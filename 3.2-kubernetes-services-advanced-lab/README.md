@@ -201,7 +201,7 @@ For each active service with `externalTrafficPolicy: Local`, Calico advertise th
 
 The two main advantages of using `externalTrafficPolicy: Local` in this way are:
 * There is a network efficiency win avoiding potential second hop of kube-proxy load-balancing to another node.
-* The client source IP addresses are preserved, which can be useful if you want to restrict access to a service to specific IP addresses using network policy applied to the backing pods.  (This is an alternative to the approach we will explore later in Lab4.2 where we will use Calico host endpoint `preDNAT` policy to restict external traffic to the services.)
+* The client source IP addresses are preserved, which can be useful if you want to restrict access to a service to specific IP addresses using network policy applied to the backing pods.
 
 
 In the previous labs, we accessed the yaobank frontend UI using curl from the `control1` node and we also mentioned that we can try any other cluster node IP address to hit the NodePort. As we've now set `externalTrafficPolicy: Local`, this will no longer work since there are no `customer` pods hosted on `control1`. Accessing the NodePort can only happen via `worker1` at this point.

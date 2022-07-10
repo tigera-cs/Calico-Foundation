@@ -255,7 +255,7 @@ pkts   bytes                      target          prot         opt  in  out  sou
 
 This rule delivers the packet to the `customer` service endpoint.
 
-The second rule performs the DNAT that changes the destination IP from the service's clusterIP to the IP address of the service endpoint backing pod (`10.48.0.8` in this example). After this, standard Linux routing can handle forwarding the packet like it would for any other packet.
+The second rule performs the DNAT that changes the destination IP from the service's NodePort to the IP address of the service endpoint backing pod (`10.48.0.8` in this example). After this, standard Linux routing can handle forwarding the packet like it would for any other packet.
 
 #### Recap
 

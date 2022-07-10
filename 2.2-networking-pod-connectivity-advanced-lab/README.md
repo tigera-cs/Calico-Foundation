@@ -307,6 +307,10 @@ networkpolicy.networking.k8s.io/nginx created
 Check `bastion` node's routing table again. You should have a new routing table entry.
 
 ```
+ip route
+```
+
+```
 default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.10 metric 100 
 10.0.1.0/24 dev ens5 proto kernel scope link src 10.0.1.10 
 10.0.1.1 dev ens5 proto dhcp scope link src 10.0.1.10 metric 100 

@@ -69,8 +69,8 @@ kubectl get svc
 ``` 
 
 ```
-NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-kubernetes      ClusterIP   10.49.0.1      <none>        443/TCP   46h
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.49.0.1    <none>        443/TCP   24h
 ```
 
 As the API server has a single endpoint because our cluster only has one master node, we can grep a single line below the Cluster IP to check the IPVS proxy rules for it.

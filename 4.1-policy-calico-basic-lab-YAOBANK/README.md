@@ -2,13 +2,183 @@
 This is the first lab of a series of labs focusing on Calico k8s network policy. Throughout this lab we will deploy and test our first Calico k8s network policy. 
 
 In this lab we will:
-* Verify connectivity from customer pod
 * Apply a simple Calico Policy
 
-### 4.1.0. Before you begin
 
-Throughout this lab, we will be using the yaobank app we deployed in Lab1.
-If you haven't done so, please go back and complete Lab1.
+Deploy yaobank application.
+
+```
+kubectl apply -f -<<EOF
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yaobank
+  labels:
+    istio-injection: disabled
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: yaobank
+  labels:
+    app: database
+spec:
+  ports:
+  - port: 2379
+    name: http
+  selector:
+    app: database
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: database
+  namespace: yaobank
+  labels:
+    app: yaobank
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: yaobank
+spec:
+  selector:
+    matchLabels:
+      app: database
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: database
+        version: v1
+    spec:
+      serviceAccountName: database
+      containers:
+      - name: database
+        image: calico/yaobank-database:certification
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 2379
+        command: ["etcd"]
+        args:
+          - "-advertise-client-urls"
+          - "http://database:2379"
+          - "-listen-client-urls"
+          - "http://0.0.0.0:2379"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: summary
+  namespace: yaobank
+  labels:
+    app: summary
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: summary
+    
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: summary
+  namespace: yaobank
+  labels:
+    app: yaobank
+    database: reader
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summary
+  namespace: yaobank
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: summary
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: summary
+        version: v1
+    spec:
+      serviceAccountName: summary
+      containers:
+      - name: summary
+        image: calico/yaobank-summary:certification
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer
+  namespace: yaobank
+  labels:
+    app: customer
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30180
+    name: http
+  selector:
+    app: customer
+    
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: customer
+  namespace: yaobank
+  labels:
+    app: yaobank
+    summary: reader
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+  namespace: yaobank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: customer
+        version: v1
+    spec:
+      serviceAccountName: customer
+      containers:
+      - name: customer
+        image: calico/yaobank-customer:certification
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+EOF
+```
 
 
 ### 4.1.1. Verify connectivity from CentOS pod

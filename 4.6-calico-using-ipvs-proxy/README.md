@@ -58,31 +58,30 @@ If you are able to find the mentioned String in the logs, IPVS mode is being use
 
 ## Verify and Debug IPVS
 
-Users can use ipvsadm tool to check whether kube-proxy are maintaining IPVS rules correctly. For example, we have the following services in the cluster.
+Users can use ipvsadm tool to check whether kube-proxy are maintaining IPVS rules correctly. This needs to be done from any of the cluster nodes and not the bastion node. WeIn this example, we will use the kubernetes APIserver.
 
 ```
-root@ip-10-0-0-10:~# kubectl get svc -A
-NAMESPACE     NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
-default       kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP                  23h
-kube-system   kube-dns     ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   23h
+ssh worker1
+```
 
+```
+kubectl get svc
 ``` 
 
+```
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+kubernetes      ClusterIP   10.49.0.1      <none>        443/TCP   46h
+```
+
+As the API server has a single endpoint because our cluster only has one master node, we can grep a single line below the Cluster IP to check the IPVS proxy rules for it.
 
 Following are the IPVS proxy rules for above services
 
 ```
-root@ip-10-0-0-10:~# sudo ipvsadm -ln
-IP Virtual Server version 1.2.1 (size=4096)
-Prot LocalAddress:Port Scheduler Flags
-  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
-TCP  10.96.0.1:443 rr
-  -> 10.0.0.10:6443               Masq    1      0          0
-TCP  10.96.0.10:53 rr
-TCP  10.96.0.10:9153 rr
-UDP  10.96.0.10:53 rr
+sudo ipvsadm -ln | grep -A1 10.49.0.1:443
+```
 
-
+```
 ```
 
 ## Why kube-proxy can't start IPVS mode

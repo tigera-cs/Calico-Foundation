@@ -154,7 +154,7 @@ This is just one way of dividing responsibilities across teams.  Pods, Namespace
 
 Calico and Kubernetes policies are always implemented based on endpoint labels. However, Calico provides a convenient way of defining policies based on Kubernetes Services and Calico dynamically in the backend implements and enforces the policy on the associated endpoints.
 
-Let's start by creating an application that is composed of a server and a client component. 
+Let's start by creating an application that is composed of a server and a client component. Get yourself familiar with the following app. We will use nginx-client to stablish http connections to nginx-server on port 80.
 
 ```
 kubectl apply -f -<<EOF
@@ -241,6 +241,104 @@ spec:
     targetPort: 80
   selector:
     app: nginx-server
+EOF
+
+```
+
+```
+kubectl get pods -n nginxapp
+```
+
+```
+NAME                            READY   STATUS    RESTARTS   AGE   IP            NODE                                      NOMINATED NODE   READINESS GATES
+nginx-client-5444bb9bb9-6gt92   1/1     Running   0          70m   10.48.0.199   ip-10-0-1-31.eu-west-1.compute.internal   <none>           <none>
+nginx-server-6f6f496597-9jcd5   1/1     Running   0          58m   10.48.0.200   ip-10-0-1-31.eu-west-1.compute.internal   <none>           <none>
+nginx-server-6f6f496597-dzfvp   1/1     Running   0          58m   10.48.0.17    ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
+nginx-server-6f6f496597-fxlrr   1/1     Running   0          58m   10.48.0.16    ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
+```
+
+```
+kubectl get svc -n nginxapp
+```
+
+```
+NAME           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+nginx-client   ClusterIP   10.49.23.129   <none>        80/TCP    58m
+nginx-server   ClusterIP   10.49.191.55   <none>        80/TCP    56m
+```
+
+Let's exec into the nginx-client pod and try connecting to nginx-server service.
+
+```
+nginx_client_pod=$(kubectl get pods -n nginxapp -l app=nginx-client -o jsonpath='{.items[0].metadata.name}')
+echo $nginx_client_pod
+kubectl exec -ti $nginx_client_pod -n nginxapp -- bash
+```
+The connection should fail as our previously implemented global network policy is blocking the traffic.
+
+```
+curl 10.49.191.55
+```
+
+Let's now implement the required Calico network policies to enable the communication. Examine the following Calico network policies and then apply the policy.
+
+```
+kubectl apply -f -<<EOF
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: nginxclient-allow
+  namespace: nginxapp
+spec:
+  selector: app == "nginx-client"
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source:
+        services:
+          name: nginx-server
+          namespace: nginxapp
+      destination: {}
+  egress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        services:
+          name: nginx-server
+          namespace: nginxapp
+  types:
+    - Ingress
+    - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: nginxserver-allow
+  namespace: nginxapp
+spec:
+  selector: app == "nginx-server"
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source:
+        services:
+          name: nginx-client
+          namespace: nginxapp
+      destination:
+        ports:
+          - '80'
+  egress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        services:
+          name: nginx-client
+          namespace: nginxapp
+  types:
+    - Ingress
+    - Egress
 EOF
 
 ```

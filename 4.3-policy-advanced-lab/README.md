@@ -27,6 +27,7 @@ Access the customer pod.
 CUSTOMER_POD=$(kubectl get pod -l app=customer -n yaobank -o jsonpath='{.items[0].metadata.name}')
 echo $CUSTOMER_POD
 kubectl exec -ti $CUSTOMER_POD -n yaobank -c customer bash
+
 ```
 
 ```

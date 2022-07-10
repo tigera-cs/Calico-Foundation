@@ -216,6 +216,33 @@ kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 dig www.google.com
 ```
 
+```
+
+; <<>> DiG 9.10.3-P4-Ubuntu <<>> www.google.com
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 63005
+;; flags: qr rd ra; QUERY: 1, ANSWER: 6, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.google.com.                        IN      A
+
+;; ANSWER SECTION:
+www.google.com.         30      IN      A       74.125.193.99
+www.google.com.         30      IN      A       74.125.193.104
+www.google.com.         30      IN      A       74.125.193.106
+www.google.com.         30      IN      A       74.125.193.105
+www.google.com.         30      IN      A       74.125.193.147
+www.google.com.         30      IN      A       74.125.193.103
+
+;; Query time: 14 msec
+;; SERVER: 10.49.0.10#53(10.49.0.10)
+;; WHEN: Sun Jul 10 03:07:27 UTC 2022
+;; MSG SIZE  rcvd: 223
+```
+
 Remember to exit from the kubectl exec of the customer pod by typing `exit`.
 ```
 exit

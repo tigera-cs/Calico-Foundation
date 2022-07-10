@@ -127,11 +127,7 @@ spec:
         image: nginx:1.14.2
         ports:
         - containerPort: 80
-EOF
-```
-
-```
-kubectl apply -f - <<EOF
+---
 apiVersion: v1
 kind: Service
 metadata:

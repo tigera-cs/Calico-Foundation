@@ -1,8 +1,0 @@
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkSet
-metadata:
- name: sapmle-set-api
-spec:
-  nets:
-    - 10.0.0.10
----

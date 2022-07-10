@@ -54,7 +54,7 @@ for i in $(kubectl get pods -n kube-system -o name | grep kube-proxy) ; do kubec
 for i in $(kubectl get pods -n kube-system -o name | grep kube-proxy) ; do kubectl logs $i -n kube-system | grep "Using ipvs Proxier" ; done
 ```
 
-If you are able to find the mentioned String in the logs, IPVS mode is being used by the cluster. You can always see detailed logs for more depth about the IPVS mode.
+If you are able to find the mentioned String in the logs, IPVS mode is being used by the cluster. You can also check the detailed logs for the IPVS mode.
 
 ## Verify and Debug IPVS
 

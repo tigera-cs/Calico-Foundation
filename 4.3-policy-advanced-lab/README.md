@@ -7,7 +7,7 @@ In this lab you will:
 * Create Egress Lockdown policy as a Security Admin for the cluster
 * Grant selective Internet access
 * Protect the Host
-* Add Policy for Kubernetes NodePorts
+
 
 ### Before you begin
 
@@ -156,23 +156,43 @@ Thus far, we've created policies that protect pods in Kubernetes. However, Calic
 
 The protection of Kubernetes nodes themselves highlights some of the unique capabilities of Calico. We need to account for various control plane services (such as the apiserver, kubelet, controller-manager, etcd, and others) and allow the traffic. In addition, one needs to also account for certain pods that might be running with host networking (i.e., using the host IP address for the pod) or using hostports. To add an additional layer of challenge, there are also various services (such as Kubernetes NodePorts) that can take traffic coming to reserved port ranges in the host (such as 30000-32767) and NAT it prior to forwarding to a local destination (and perhaps even SNAT traffic prior to redirecting it to a different worker node). 
 
-Lets explore these more advanced scenarios, and how Calico policy can edtablish the right policies.
-
-#### 4.3.3.1. Observe that Kubernetes Control Plane has been left exposed by Kubeadm
-
-Lets start by seeing how the default cluster deployment have left some control plane services exposed to the world.
-
-Run the command below from the standalone Host (host1):
+Lets explore these more advanced scenarios.
+Lets start by seeing how the default cluster deployment using kubeadm have left some control plane services exposed to the world.
+Identifiy where etcd is running.
 
 ```
-curl -v 10.0.0.10:2379
+kubectl get pod -n kube-system -l component=etcd -o wide
 ```
 
-This should succeed - i.e., the Kubernetes cluster's ETCD store is left exposed for attacks, along with the rest of the control plane. Not good!!
+```
+NAME                                           READY   STATUS    RESTARTS   AGE   IP          NODE                                      NOMINATED NODE   READINESS GATES
+etcd-ip-10-0-1-20.eu-west-1.compute.internal   1/1     Running   0          11h   10.0.1.20   ip-10-0-1-20.eu-west-1.compute.internal   <none>           <none>
+```
+
+Now, let's try to access it from our bastion node.
+
+```
+curl -v 10.0.1.20:2379
+```
+
+```
+*   Trying 10.0.1.20:2379...
+* TCP_NODELAY set
+* Connected to 10.0.1.20 (10.0.1.20) port 2379 (#0)
+> GET / HTTP/1.1
+> Host: 10.0.1.20:2379
+> User-Agent: curl/7.68.0
+> Accept: */*
+> 
+* Empty reply from server
+* Connection #0 to host 10.0.1.20 left intact
+curl: (52) Empty reply from server
+```
+
+This should succeed because the Kubernetes cluster's ETCD store is left exposed for attacks along with the rest of the control plane. This could lead to a compromise if not handled properly.
 
 
-#### 4.3.3.2. Create Network Policy for Hosts
-Lets create some host endpoint policies for the kubernetes master node and worker nodes
+Lets create some host endpoint policies for the kubernetes master and worker nodes.
 Examine the policy first before applying it.
 
 ```
@@ -324,98 +344,5 @@ This time the curl should fail, and timeout after 5 seconds.
 We have successfully locked down the Kubernetes control plane to only be accessible from relevant nodes.
 
 
-### 4.3.4. Add Policy for Kubernetes NodePorts
-
-#### 4.3.4.1. Verify you cannot access yaobank frontend
-Now open up a new incognito browser tab (to ensure that a new connection is attempted from your browser) and try to access the Yaobank service again. It should fail since our host protection explicitly locked down nodePorts too. Let's now allow specific nodePorts.
-
-#### 4.3.4.2. Examine and Apply the policy
-
-```
-more 4.3-global-host-policy-allow.yaml
-
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: allow-yaobank-nodeport
-spec:
-  order: 425
-  selector: k8s-worker == "true"
-  applyOnForward: true
-  preDNAT: true
-  ingress:
-    - action: Allow
-      protocol: TCP
-      destination:
-        ports: [30180]
-  types:
-    - Ingress
----
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: allow-desired-clustervips
-spec:
-  order: 425
-  selector: k8s-worker == "true"
-  applyOnForward: true
-  preDNAT: true
-  ingress:
-    - action: Allow
-      destination:
-        nets:
-          - 10.49.0.0/16
-  types:
-    - Ingress
-
----
-
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: allow-desired-externalvips
-spec:
-  order: 425
-  selector: k8s-worker == "true"
-  applyOnForward: true
-  preDNAT: true
-  ingress:
-    - action: Allow
-      destination:
-        nets:
-          - 10.50.0.0/24
-  types:
-    - Ingress
-
----
-
-apiVersion: projectcalico.org/v3
-kind: GlobalNetworkPolicy
-metadata:
-  name: allow-desired-podcidrs
-spec:
-  order: 425
-  selector: k8s-worker == "true"
-  applyOnForward: true
-  preDNAT: true
-  ingress:
-    - action: Allow
-      destination:
-        nets:
-          - 10.48.0.0/16
-  types:
-    - Ingress
-
-```
-
-
-```
-calicoctl apply -f 4.3-global-host-policy-allow.yaml
-```
-
-#### 4.3.4.3. Verify access
-Now try to access the Yaobank app from your browser again. This should work properly. 
-
-This illustrates the capabilities of Calico for enabling advanced network security across your Kubernetes cluster, including control plane, the master and worker nodes, hostports and host-networked pods as well as services and nodePorts! 
 
 > __Congratulations! You have completed your Calico advanced policy lab.__

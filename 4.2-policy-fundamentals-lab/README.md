@@ -200,6 +200,7 @@ spec:
       ports:
       - 53
 EOF
+
 ```
 
 The global policy allows all pods egress access to kube-dns and denies egress DNS requests to other DNS servers.  

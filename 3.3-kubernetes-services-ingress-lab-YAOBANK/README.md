@@ -281,7 +281,7 @@ summary    ClusterIP   10.49.216.86   <none>        80/TCP     5m54s
 
 ### Lab cleanup
 
-We will need to use yaobank application using NodePort service in the next lab. Let's delete the yaobank namespace as we will need deploy it again.
+We will need to use yaobank application using NodePort service in the next lab. Let's delete the yaobank namespace as we will need to deploy it again.
 
 ```
 kubectl delete namespace yaobank

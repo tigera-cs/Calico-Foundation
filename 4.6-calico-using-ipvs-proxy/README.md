@@ -169,31 +169,15 @@ TCP  ip-10-49-120-28.eu-west-1.co rr
   -> ip-10-48-0-201.eu-west-1.com Masq    1      0          0         
   -> ip-10-48-0-202.eu-west-1.com Masq    1      0          0 
 ```
-In the above output, `ip-10-99-170-70.us-west-2.co` is the service and just below the service you can see the list of pods/endpoints. `rr` means the loadbalancing used is `round-robin`.
 
-In our previous lab, we advertised the Kubernetes service CIDR to the bastion node. Check the bastion node routing table. You should see routes `10.49.0.0/16` to the Kubernetes service CIDR.
 
-```
-ip route
-```
+If you try connecting to our `service-nginx` created in this lab from any of the worker node, the connection should randonmly go through and fail due to our previously implemented network policy blocking the traffic. The connections only go through when kube-proxy forwards the traffic to an endpoint local to the node. This is because nodes have privileged access to the pods running on them.
+
+Try connecting `service-nginx` from worker1  for few times and notice the behavior.
 
 ```
-default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.10 metric 100 
-10.0.1.0/24 dev ens5 proto kernel scope link src 10.0.1.10 
-10.0.1.1 dev ens5 proto dhcp scope link src 10.0.1.10 metric 100 
-10.48.2.216/29 via 10.0.1.31 dev ens5 proto bird 
-10.49.0.0/16 proto bird 
-        nexthop via 10.0.1.20 dev ens5 weight 1 
-        nexthop via 10.0.1.30 dev ens5 weight 1 
-        nexthop via 10.0.1.31 dev ens5 weight 1 
-10.50.0.0/24 proto bird 
-        nexthop via 10.0.1.20 dev ens5 weight 1 
-        nexthop via 10.0.1.30 dev ens5 weight 1 
-        nexthop via 10.0.1.31 dev ens5 weight 1 
+ssh worker1
 ```
-
-However, if you try connecting to our `service-nginx` created in this lab, the connectivity should fail due to our previously implemented network policy blocking the traffic. 
-Try connecting `service-nginx` from the bastion node.
 
 ```
 curl 10.49.120.28
@@ -228,15 +212,21 @@ EOF
 
 ```
 
+Open two terminal sessions and SSH into worker1. 
 
-If you are on the same host i.e. Master you can run the following script to generate traffic for the service and check the output stats in other tab by doing the following.
+Run the following script to generate traffic for the `service-nginx` and check the output stats in other terminal.
 
 ```
-for i in {1..10}; do  curl <service-ip>:80 ; done
+for i in {1..30}; do  curl <service-ip>:80 ; done
+```
 
-In the next tab analyze the packet flow per second using
+In the other tab, analyze the packet flow per second using the following command.
 
+```
 watch sudo ipvsadm -L -n --rate
 
 ```
-Here you will see the traffic getting distributed among the pods using `rr algorithm`
+
+You should see the traffic getting distributed among the pods using `rr algorithm`'
+
+

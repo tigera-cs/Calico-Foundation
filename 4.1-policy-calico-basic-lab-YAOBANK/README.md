@@ -204,12 +204,18 @@ NAME      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE     SELECTOR
 summary   ClusterIP   10.49.202.152   <none>        80/TCP    3m59s   app=summary
 ```
 
-Next, Let's exec into the CentOS pod and verify connectivity to the nginx pod.
+Next, Let's exec into the customer pod and perform the following connectivity checks.
+
+* ping the pod ip
+* curl the pod ip
+* ping summary (service name)
+* curl summary (service name)
+
 
 ```
 kubectl exec -ti -n yaobank $(kubectl get pod -l app=customer -n yaobank -o name) bash
-	ping 10.48.194.174
-	curl -v telnet://10.48.194.174:80
+	ping 10.48.0.198
+	curl -v telnet://10.48.0.198:80
 	ping summary
 	curl -v telnet://summary:80
 	exit

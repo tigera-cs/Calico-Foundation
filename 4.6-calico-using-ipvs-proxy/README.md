@@ -88,7 +88,7 @@ TCP  10.49.0.1:443 rr
 
 
 ## Why kube-proxy can't start IPVS mode
-Use the following check list to help you solve the problems:
+Use the following check list to help you troubleshoot IPVS related issues.
 
 1. Specify `mode=ipvs` 
 

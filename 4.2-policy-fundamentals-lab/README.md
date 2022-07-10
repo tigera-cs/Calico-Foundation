@@ -251,19 +251,18 @@ exit
 
 ### Create a network policy to the rest of the sample application
 
-We've now defined a default deny across all of the cluster, plus allowed DNS queries to kube-dns (CoreDNS). We also defined a specific policy for the `database` in section 4.2. 
-But we haven't yet defined policies for the `customer` or `summary` pods.
+We've now deployed a global default deny policy across the cluster and allowed DNS queries to kube-dns (CoreDNS). We also defined a specific policy for the `database` pod in the yaobank namesapce, but we haven't yet defined policies for the `customer` or `summary` pods.
 
-#### 4.2.4.1. Verify cannot access Frontend
+Try to access the yaobank frontend from your bastion node. The connection should timeout since we haven't created a policy for the `customer` and `summary` pods. The default deny policy should block the traffic at this point.
 
-Try to access the Yaobank front end from your browser. The Yaobank app should timeout since we haven't created a policy for the `customer` and `summary` pods. So, in this case we are actually matching the default deny rule. 
-
-### 4.2.4.2. Create policy for the remaining pods
-
-Let's examine and apply a policy for all the Yaobank services.
 ```
-more 4.2-more-yaobank-policy.yaml
+curl 10.0.1.30:30180
+```
 
+Let's examine and apply a policy for all the yaobank services.
+
+```
+kubectl apply -f -<<EOF
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -283,9 +282,7 @@ spec:
         port: 80
   egress:
     - to: []
-
 ---
-
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -301,12 +298,11 @@ spec:
         port: 80
   egress:
     - to: []
-```
-Notice that the egress rules are excessively liberal, allowing outbound connection to any destination. While this may be required for some workloads, in most cases specific restrictive rules are required to limit cluster access. We will look at how this can be locked down further by the cluster operator or security admin in the next module.
+EOF
 
 ```
-kubectl apply -f 4.2-more-yaobank-policy.yaml
-```
+Notice that the egress rules are excessively liberal allowing outbound connection to any destination. While this may be required for some workloads, in most cases specific restrictive rules are required to limit access. We will look at how this can be locked down further by the cluster operator or security admin in the next module.
+
 
 #### 4.2.4.3. Verify everything is now working
 Now try accessing the Yaobank front end from the browser, it should work again. By defining the cluster wide default deny we've forced the user to follow best practices and define network policy for all the necessary microservices.

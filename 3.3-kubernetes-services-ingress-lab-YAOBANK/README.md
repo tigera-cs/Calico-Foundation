@@ -263,7 +263,7 @@ ingress-yaobank-customer   <none>   *.lynx.tigera.ca   10.0.1.30,10.0.1.31   80 
 
 Check the connectivity to the customer service `https:\\<LabName>.lynx.tigera.ca` via your browser. 
 
-
+![yaobank](img/ingress-resource.PNG)
 
 Note we do not use a NodePort service anymore for our customer application in this last manifest as now we use the ingress to access it.
 

@@ -144,6 +144,9 @@ exit
 ```
 
 Now, let's examine and apply policies, which allow DNS traffic to the cluster internal kube-dns and also allow kube-dns to communicate with anything.
+The global network policy allows all pods egress access to kube-dns and denies egress DNS requests to other DNS servers.  
+The network policy allows ingress DNS requests to kube-dns and allows kube-dns egress traffic.
+Notice the policy order which is a functionnality of Calico that allows a deterministic sequential processing of policies.
 
 ```
 kubectl apply -f -<<EOF
@@ -201,16 +204,6 @@ spec:
       - 53
 EOF
 
-```
-
-The global policy allows all pods egress access to kube-dns and denies egress DNS requests to other DNS servers.  
-The network policy allows ingress DNS requests to kube-dns.
-Notice the policy order which is a functionnality of Calico that allows a deterministic sequential processing of policies.
-
-Now, let's apply the policy and examine the impact. 
-
-```
-calicoctl apply -f 4.2-globalallowdns.yaml
 ```
 
 Now repeat the same test and DNS lookups should be successful.

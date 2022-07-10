@@ -13,8 +13,10 @@ ipvs mode provides greater scale and performance vs iptables mode.
 
 ```
 sudo apt install -y ipvsadm ipset
+```
+Load the kernel modules.
 
-# load module <module_name>
+```
 sudo modprobe ip_vs 
 sudo modprobe ip_vs_rr
 sudo modprobe ip_vs_wrr 
@@ -22,10 +24,12 @@ sudo modprobe ip_vs_sh
 sudo modprobe nf_conntrack
 sudo sysctl --system
 sudo sysctl -p
+```
 
-# to check loaded modules, use
+Check that the kernel modules are loaded.
+
+```
 lsmod | grep -e ip_vs -e nf_conntrack
-# or
 cut -f1 -d " " /proc/modules | grep -e ip_vs -e nf_conntrack
 ```
 

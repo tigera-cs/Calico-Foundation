@@ -206,10 +206,10 @@ summary   ClusterIP   10.49.202.152   <none>        80/TCP    3m59s   app=summar
 
 Next, Let's exec into the customer pod and perform the following connectivity checks.
 
-* ping the pod ip
-* curl the pod ip
-* ping summary (service name)
-* curl summary (service name)
+* Ping the pod IP
+* Curl the pod IP
+* Ping summary (service name)
+* Curl summary (service name)
 
 ```
  kubectl exec -ti -n yaobank $(kubectl get pods -n yaobank -l app=customer -o name) -- bash

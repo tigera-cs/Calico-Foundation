@@ -243,12 +243,13 @@ www.google.com.         30      IN      A       74.125.193.103
 ;; MSG SIZE  rcvd: 223
 ```
 
-Remember to exit from the kubectl exec of the customer pod by typing `exit`.
+Exit the customer pod.
+
 ```
 exit
 ```
 
-### 4.2.4. Create a network policy to the rest of the sample application
+### Create a network policy to the rest of the sample application
 
 We've now defined a default deny across all of the cluster, plus allowed DNS queries to kube-dns (CoreDNS). We also defined a specific policy for the `database` in section 4.2. 
 But we haven't yet defined policies for the `customer` or `summary` pods.

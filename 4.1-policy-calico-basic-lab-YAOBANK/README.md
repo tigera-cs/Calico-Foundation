@@ -337,9 +337,9 @@ exit
 
 You should have the following behaviour:
 
-* ping to the pod now fails. This is expected since icmp was not allowed in the policy we have applied.
-* curl to the pod ip is successful
-* curl to summary is successful
+* Ping to the pod IP now fails. This is expected since icmp was not allowed in the policy we have applied.
+* Curl to the pod IP is successful
+* Curl to summary is successful
 
 Let's cleanup the network policy for now.
 

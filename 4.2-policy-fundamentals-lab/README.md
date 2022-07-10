@@ -113,14 +113,14 @@ EOF
 ```
 
 
-### 4.2.3.3. Verify default deny policy
+Verify default deny policy
 
-In Step 4.2.2 above we only defined network policy for the Database. The rest of our pods should now be hitting default deny since there's no policy defined matching them.  
+In the previous step, we only defined a network policy allowing ingress traffic from summary pods to the database pod. The rest of our pods should now be hitting default deny since there is no policy defined matching them.  
 
 Lets try to see if basic connectivity works by logging into the customer pod and doing some tests.
 
 ```
-kubectl exec -ti $CUSTOMER_POD -n yaobank -c customer bash
+kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 ```
 
 ```

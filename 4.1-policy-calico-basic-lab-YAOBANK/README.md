@@ -5,6 +5,8 @@ In this lab we will:
 * Apply a simple Calico Policy
 
 
+### Apply a simple Calico Policy
+
 Deploy yaobank application.
 
 ```

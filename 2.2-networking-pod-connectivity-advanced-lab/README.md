@@ -125,7 +125,8 @@ sudo mv calicoctl /usr/local/bin
 ```
 
 
-Check the status of Calico on the node:
+Check the BGP connection status from worker1 to other nodes (BGPPeers) in the cluster.
+
 ```
 sudo calicoctl node status
 ```

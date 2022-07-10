@@ -9,28 +9,22 @@ In this lab you will:
 * Create a Global Default Deny and allow Authorized DNS
 * Create a network policy to the rest of the sample application
 
-### 4.2.0. Before you begin
 
-In this lab, we will be using the sample application Yaobank.
-If you haven't already done so, please deploy the YAO Bank sample application as described in Lab1.
-
-### 4.2.1. Simulate a compromise
+### Simulate a compromise
 
 First, let's start by simulating a pod compromise where the attacker is attempting to access the database from the compromised pod. We can simulate a compromise of the customer pod by just exec'ing into the pod and attempting to access the database directly from there.
 
-#### 4.2.1.1. Exec into the Customer pod
-
-Determine the customer pod ip address and assign it to a variable so that we can reference it later on.  
+Determine the customer pod name and assign it to an environment variable so that we can reference it later on.  
 
 ```
 CUSTOMER_POD=$(kubectl get pod -l app=customer -n yaobank -o jsonpath='{.items[0].metadata.name}')
 echo $CUSTOMER_POD
 ```
-Verify that the output correctly references the pod.
-Execute into the pod to simulate a compromise.
+
+Verify that the output correctly references the pod. Execute into the pod to simulate a compromise.
 
 ```
-kubectl exec -ti $CUSTOMER_POD -n yaobank -c customer bash
+kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 ```
 You are now logged in and ready to launch the attack.
 

@@ -153,19 +153,81 @@ kubernetes      ClusterIP   10.49.0.1      <none>        443/TCP   24h
 service-nginx   ClusterIP   10.49.120.28   <none>        80/TCP    52s
 ```
 
-Now let us list the ipvs table and check how are service maps to the pods created using deployment. Blow output is trimmed for better understanding.
+Now let's list the ipvs table and check how are service maps to the pods created using deployment. (This command needs to run from one of the worker nodes).
 
 ```
-sudo ipvsadm -l
-IP Virtual Server version 1.2.1 (size=4096)
-Prot LocalAddress:Port Scheduler Flags
-  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
-TCP  ip-10-99-170-70.us-west-2.co rr
--> ip-192-168-180-201.us-west-2 Masq    1      0          0
--> ip-192-168-180-202.us-west-2 Masq    1      0          0
--> ip-192-168-180-203.us-west-2 Masq    1      0          0
+ssh worker1
 ```
-Here `ip-10-99-170-70.us-west-2.co` and the below is list of pods/endpoints. Here `rr` means the `loadbalancing used is round-robin`
+
+```
+sudo ipvsadm -l | grep -A3 $(kubectl get svc service-nginx --no-headers | awk {'print $3'})
+```
+
+```
+TCP  ip-10-49-120-28.eu-west-1.co rr
+  -> ip-10-48-0-18.eu-west-1.comp Masq    1      0          0         
+  -> ip-10-48-0-201.eu-west-1.com Masq    1      0          0         
+  -> ip-10-48-0-202.eu-west-1.com Masq    1      0          0 
+```
+In the above output, `ip-10-99-170-70.us-west-2.co` is the service and just below the service you can see the list of pods/endpoints. `rr` means the loadbalancing used is `round-robin`.
+
+In our previous lab, we advertised the Kubernetes service CIDR to the bastion node. Check the bastion node routing table. You should see routes `10.49.0.0/16` to the Kubernetes service CIDR.
+
+```
+ip route
+```
+
+```
+default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.10 metric 100 
+10.0.1.0/24 dev ens5 proto kernel scope link src 10.0.1.10 
+10.0.1.1 dev ens5 proto dhcp scope link src 10.0.1.10 metric 100 
+10.48.2.216/29 via 10.0.1.31 dev ens5 proto bird 
+10.49.0.0/16 proto bird 
+        nexthop via 10.0.1.20 dev ens5 weight 1 
+        nexthop via 10.0.1.30 dev ens5 weight 1 
+        nexthop via 10.0.1.31 dev ens5 weight 1 
+10.50.0.0/24 proto bird 
+        nexthop via 10.0.1.20 dev ens5 weight 1 
+        nexthop via 10.0.1.30 dev ens5 weight 1 
+        nexthop via 10.0.1.31 dev ens5 weight 1 
+```
+
+However, if you try connecting to our `service-nginx` created in this lab, the connectivity should fail due to our previously implemented network policy blocking the traffic. 
+Try connecting `service-nginx` from the bastion node.
+
+```
+curl 10.49.120.28
+```
+
+Let's implement a network policy that allows this communication. Note this policy allows ingress traffic from any source and egress traffic to any destination.
+
+```
+kubectl apply -f -<<EOF
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: nginx-server-allow-all
+  namespace: default
+spec:
+  selector: app == "nginx"
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '80'
+  egress:
+    - action: Allow
+      source: {}
+      destination: {}
+  types:
+    - Ingress
+    - Egress
+EOF
+
+```
+
 
 If you are on the same host i.e. Master you can run the following script to generate traffic for the service and check the output stats in other tab by doing the following.
 

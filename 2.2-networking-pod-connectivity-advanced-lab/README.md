@@ -159,7 +159,7 @@ If you are interested to see the standalone bird configurations on `bastion` nod
 sudo cat /etc/bird/bird.conf
 ```
 
-Let's add a new BGPPeer by running the following command. Get yourself familiar with the GBPPeer resource. `peerIP` is the IP address of the peering router, which the `bastion` node in this case. `asNumber` is the AS number of the peering router.
+Let's add a new BGPPeer by running the following command. Get yourself familiar with the GBPPeer resource. `peerIP` is the IP address of the peering router, which is the `bastion` node in this case. `asNumber` is the AS number of the peering router.
 
 ```
 kubectl apply -f -<<EOF

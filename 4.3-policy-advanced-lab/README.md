@@ -280,7 +280,7 @@ The connection should fail as our previously implemented global network policy i
 curl 10.49.191.55
 ```
 
-Let's now implement the required Calico network policies to enable the communication. Examine the following Calico network policies and then apply the policy.
+Let's now implement the required Calico network policies to enable the communication. Examine the following Calico network policies and then apply them.
 
 ```
 kubectl apply -f -<<EOF

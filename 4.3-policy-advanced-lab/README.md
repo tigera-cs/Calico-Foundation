@@ -136,25 +136,25 @@ curl -I www.google.com
 exit
 ```
 
-Now you should find that the customer pod is allowed Internet Egress, but other pods (like Summary and Database) are not.
+Now you should find that the customer pod is allowed Internet access, but other pods (like Summary and Database) are not.
 
-#### 4.3.2.3. Managing trust across teams
 
-There are many ways of dividing responsibilities across teams using Kubernetes RBAC.
+There are many ways for dividing responsibilities across teams using Kubernetes RBAC.
 
 Let's take the following case:
-* The secops team is responsible for creating Namespaces and Services accounts for dev teams. Kubernetes RBAC is setup so that only they can do this.
-* Dev teams are given Kubernetes RBAC permissions to create pods in their Namespaces, and they can use, but not modify any Service Account in their Namespaces.
 
-In this scenario, the secops team can control which teams should be allowed to have pods that access the internet.  If a dev team is allowed to have pods that access the internet then the dev team can choose which pods access the internet by using the appropriate Service Account. 
+* The SecOps team is responsible for creating Namespaces and Services accounts for dev teams. Kubernetes RBAC is setup so that only they can do this.
+* Dev teams are given Kubernetes RBAC permissions to create pods in their Namespaces and they can use but not modify any Service Account in their Namespaces.
+
+In this scenario, the SecOps team can control which teams should be allowed to have pods that access the Internet.  If a dev team is allowed to have pods that access the Internet then the dev team can choose which pods access the Internet by using the appropriate Service Account. 
 
 This is just one way of dividing responsibilities across teams.  Pods, Namespaces, and Service Accounts all have separate Kubernetes RBAC controls and they can all be used to select workloads in Calico network policies.
 
-### 4.3.3. Protect the Host
+### Protect the Host
 
 Thus far, we've created policies that protect pods in Kubernetes. However, Calico Policy can also be used to protect the host interfaces in any standalone Linux node (such as a baremetal node, cloud instance or virtual machine) outside the cluster. Furthermore, it can also be used to protect the Kubernetes nodes themselves.
 
-The protection of Kubernetes nodes themselves highlights some of the unique capabilities of Calico - since this needs to account for various control plane services (such as the apiserver, kubelet, controller-manager, etcd, and others. In addition, one needs to also account for certain pods that might be running with host networking (i.e., using the host IP address for the pod) or using hostports. To add an additional layer of challenge, there are also various services (such as Kubernetes NodePorts) that can take traffic coming to reserved port ranges in the host (such as 30000-32767) and NAT it prior to forwarding to a local destination (and perhaps even SNAT traffic prior to redirecting it to a different worker node). 
+The protection of Kubernetes nodes themselves highlights some of the unique capabilities of Calico. We need to account for various control plane services (such as the apiserver, kubelet, controller-manager, etcd, and others) and allow the traffic. In addition, one needs to also account for certain pods that might be running with host networking (i.e., using the host IP address for the pod) or using hostports. To add an additional layer of challenge, there are also various services (such as Kubernetes NodePorts) that can take traffic coming to reserved port ranges in the host (such as 30000-32767) and NAT it prior to forwarding to a local destination (and perhaps even SNAT traffic prior to redirecting it to a different worker node). 
 
 Lets explore these more advanced scenarios, and how Calico policy can edtablish the right policies.
 

@@ -93,12 +93,12 @@ exit
 
 ### Create a Global Default Deny and allow Authorized DNS
 
-Now, let's introduce a Calico default deny GlobalNetworkPolicy which applies throughout our cluster. 
+Now, let's introduce a Calico default deny GlobalNetworkPolicy, which applies throughout the cluster. 
 
-#### 4.2.3.1. Examine and apply the default deny policy
+Examine and apply the default deny policy.
+
 ```
-more 4.2-globaldefaultdeny.yaml
-
+kubectl apply -f -<<EOF
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
@@ -108,15 +108,10 @@ spec:
   types:
   - Ingress
   - Egress
+EOF
 
 ```
 
-Now, let's apply policy and verify the impact.
-
-```
-calicoctl apply -f 4.2-globaldefaultdeny.yaml
-
-```
 
 ### 4.2.3.3. Verify default deny policy
 

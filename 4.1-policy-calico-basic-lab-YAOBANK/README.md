@@ -344,6 +344,6 @@ You should have the following behaviour:
 Let's cleanup the network policy for now.
 
 ```
-kubectl delete -n yaobank networkpolicy.pro
+kubectl delete -n yaobank networkpolicy.pro customer2summary
 ```
 > __Congratulations! You have completed your first Calico network policy lab.__

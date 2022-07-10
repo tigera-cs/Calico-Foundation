@@ -154,7 +154,7 @@ This is just one way of dividing responsibilities across teams.  Pods, Namespace
 
 Calico and Kubernetes policies are implemented based on endpoint labels. However, Calico provides a convenient way of defining policies based on Kubernetes Services and Calico dynamically in the backend implements and enforces the policy on the associated endpoints.
 
-Let's start by creating an application that is composed of a server and a client component. Get yourself familiar with the following app. We will use nginx-client to stablish http connections to nginx-server on port 80.
+Let's start by creating an application that is composed of a server and a client component. Get yourself familiar with the following app. We will use nginx-client to establish http connections to nginx-server on port 80.
 
 ```
 kubectl apply -f -<<EOF

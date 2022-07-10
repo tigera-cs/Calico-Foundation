@@ -5,7 +5,7 @@ In this 2nd lab, we will explore the use cases of NetworkPolicy and GlobalNetwor
 In this lab you will:
 
 * Simulate a compromise
-* Create Kubernetes Network Policy limiting access
+* Create Kubernetes Network Policy to limit access
 * Create a Global Default Deny and allow Authorized DNS
 * Create a network policy to the rest of the sample application
 
@@ -39,14 +39,14 @@ Now, let's exit the pod and put some network policies in place.
 exit
 ```
 
-### 4.2.2. Create Kubernetes Network Policy limiting access
+### Create Kubernetes Network Policy to limit access
 
 We can use a Kubernetes Network Policy to protect the Database.
 
-#### 4.2.2.1. Examine and apply the network policy manifest
-``` 
-more 4.2-k8s-network-policy-yaobank.yaml
+Examine and apply the following network policy manifest.
 
+``` 
+kubectl apply -f -<<EOF
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -64,6 +64,7 @@ spec:
       ports:
       - protocol: TCP
         port: 2379
+EOF
 
 ```
 

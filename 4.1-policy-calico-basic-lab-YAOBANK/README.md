@@ -311,18 +311,39 @@ EOF
 The policy applies to pods, which has the label app=summary in the yaobank namespace. The policy allows TCP port 80 traffic from the source matching the label app=customer in the yaobank namespace.
 
 
-Now, let's repeat the tests we have done in section 4.1.1.
+Now, let's repeat the tests we did before.
+
+```
+ kubectl exec -ti -n yaobank $(kubectl get pods -n yaobank -l app=customer -o name) -- bash
+```
+
+```
+ping 10.48.0.198
+```
+
+```
+curl -v telnet://10.48.0.198:80
+```
+
+```
+curl -v telnet://summary:80
+```
+
+Exit the customer pod.
+
+```
+exit
+```
+
 You should have the following behaviour:
 
 * ping to the pod now fails. This is expected since icmp was not allowed in the policy we have applied.
 * curl to the pod ip is successful
-* ping to summary fails
 * curl to summary is successful
 
 Let's cleanup the network policy for now.
 
 ```
-calicoctl delete -f 4.1-customer2summary.yaml 
-Successfully deleted 1 'NetworkPolicy' resource(s)
+kubectl delete -n yaobank networkpolicy.pro
 ```
 > __Congratulations! You have completed your first Calico network policy lab.__

@@ -211,14 +211,24 @@ Next, Let's exec into the customer pod and perform the following connectivity ch
 * ping summary (service name)
 * curl summary (service name)
 
+```
+ kubectl exec -ti -n yaobank $(kubectl get pods -n yaobank -l app=customer -o name) -- bash
+```
 
 ```
-kubectl exec -ti -n yaobank $(kubectl get pod -l app=customer -n yaobank -o name) bash
-	ping 10.48.0.198
-	curl -v telnet://10.48.0.198:80
-	ping summary
-	curl -v telnet://summary:80
-	exit
+ping 10.48.0.198
+```
+
+```
+curl -v telnet://10.48.0.198:80
+```
+
+```
+ping summary
+```
+
+```
+curl -v telnet://summary:80
 ```
 
 You should have the following behaviour:

@@ -342,8 +342,18 @@ spec:
 EOF
 
 ```
+Exec into the nginx-client pod and try connecting to nginx-server service again.
 
+```
+nginx_client_pod=$(kubectl get pods -n nginxapp -l app=nginx-client -o jsonpath='{.items[0].metadata.name}')
+echo $nginx_client_pod
+kubectl exec -ti $nginx_client_pod -n nginxapp -- bash
+```
+This the connection should succeed.
 
+```
+curl 10.49.191.55
+```
 
 
 > __Congratulations! You have completed your Calico advanced policy lab.__

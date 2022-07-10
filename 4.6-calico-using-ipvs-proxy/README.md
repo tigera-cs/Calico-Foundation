@@ -229,7 +229,7 @@ watch sudo ipvsadm -L -n --rate
 
 ```
 
-Run the following script to generate traffic for the `service-nginx` service and check the output stats in other terminal again. This time you should see the traffic counters increasing. Please make sure to replace the service IP in the following command.
+Run the following script to generate traffic for the `service-nginx` service and check the output stats in other terminal again. This time you should see the traffic counters increasing. Please make sure to replace the correct service IP in the following command.
 
 ```
 for i in {1..30}; do  curl <service-ip>:80 ; done

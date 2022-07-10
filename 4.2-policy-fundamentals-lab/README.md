@@ -43,7 +43,7 @@ exit
 
 We can use a Kubernetes Network Policy to protect the Database.
 
-Examine and apply the following network policy manifest.
+Examine and apply the following network policy. This policy allows access to the database on TCP port 2379 strictly from the summary pods.
 
 ``` 
 kubectl apply -f -<<EOF
@@ -68,31 +68,30 @@ EOF
 
 ```
 
-The policy allows access to the database on TCP port 2379 strictly from summary pods.
-Let's apply the policy before we re-test the same attack again.
+Repeat the attack commands again. This time the direct database access should fail. However, the customer frontend access from your browser should still work.
 
 ```
-kubectl apply -f 4.2-k8s-network-policy-yaobank.yaml
-```
-
-#### 4.2.2.2. Try the attack again
-Repeat the attack commands in Section 4.2.1 above. This time the direct database access should fail, however, the customer frontend access from your browser should still work.
-
-```
-# Execute bash command in customer container
-kubectl exec -ti $CUSTOMER_POD -n yaobank -c customer bash
+kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 ```
 
 ```
 curl http://database:2379/v2/keys?recursive=true | python -m json.tool
 ```
+You should receive an output similar to the following. The curl will be blocked and return no data. You may need to CTRL-C to terminate the command.  
 
-The curl will be blocked and return no data.  You may need to CTRL-C to terminate the command.  Then remember to exit the pod exec and return to the host terminal.
+```
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:19 --:--:--     0
+```
+
+Exit the customer pod.
+
 ```
 exit
 ```
 
-### 4.2.3. Create a Global Default Deny and allow Authorized DNS
+### Create a Global Default Deny and allow Authorized DNS
 
 Now, let's introduce a Calico default deny GlobalNetworkPolicy which applies throughout our cluster. 
 

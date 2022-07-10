@@ -77,7 +77,7 @@ kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 ```
 curl http://database:2379/v2/keys?recursive=true | python -m json.tool
 ```
-You should receive an output similar to the following. The curl will be blocked and return no data. You may need to CTRL-C to terminate the command.  
+You should receive an output similar to the following. The curl will be blocked and return no data. You may need to ctrl+c to terminate the command.  
 
 ```
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current

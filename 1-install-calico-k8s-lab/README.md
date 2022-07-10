@@ -76,7 +76,7 @@ Run the following command to see if there is any resources in the calico-system 
 kubectl get all -n calico-system
 ```
 
-Installation resouce is also responsible for certain install time configuration parameters such as IPPOOL configuiration, MTU, and etc. For complete info on the Installation resource configurations, please visit the following link.
+Installation resouce is also responsible for certain install time configuration parameters such as IPPOOL configuration, MTU, and etc. For complete info on the Installation resource configurations, please visit the following link.
 
 https://docs.tigera.io/reference/installation/api#operator.tigera.io/v1.Installation
 

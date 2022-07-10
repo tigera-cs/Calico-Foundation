@@ -6,7 +6,7 @@ In this lab you will:
 
 * Create Egress Lockdown policy as a Security Admin for the cluster
 * Grant selective Internet access
-* Apply policy to Kubernetes services
+* Apply policy based on Kubernetes services
 
 
 ### Before you begin
@@ -150,7 +150,7 @@ In this scenario, the SecOps team can control which teams should be allowed to h
 
 This is just one way of dividing responsibilities across teams.  Pods, Namespaces, and Service Accounts all have separate Kubernetes RBAC controls and they can all be used to select workloads in Calico network policies.
 
-### Apply policy to Kubernetes services
+### Apply policy based on Kubernetes services
 
 Calico and Kubernetes policies are always implemented based on endpoint labels. However, Calico provides a convenient way of defining policies based on Kubernetes Services and Calico dynamically in the backend implements and enforces the policy on the associated endpoints.
 

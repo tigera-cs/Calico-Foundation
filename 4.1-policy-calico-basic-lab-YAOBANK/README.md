@@ -204,10 +204,10 @@ NAME      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE     SELECTOR
 summary   ClusterIP   10.49.202.152   <none>        80/TCP    3m59s   app=summary
 ```
 
-Next, Let's exec into the customer pod and perform the following connectivity checks.
+Next, Let's exec into the customer pod and perform the following connectivity checks. Please note that the pod IP address could be different in your lab.
 
-* Ping the pod IP
-* Curl the pod IP
+* Ping the summary pod IP
+* Curl the summary pod IP
 * Ping summary (service name)
 * Curl summary (service name)
 
@@ -231,16 +231,22 @@ ping summary
 curl -v telnet://summary:80
 ```
 
+Exit the customer pod.
+
+```
+exit
+```
+
 You should have the following behaviour:
-* ping to the pod ip is successful
-* curl to the pod ip is successful
-* ping to summary fails
-* curl to summary is successful
 
-As we have learned in Lab3, services are  serviced  by kube-proxy which load-balances the service request to backing pods. The service is listening to TCP port 80 so the ping failure is expected.
+* Ping to the pod IP is successful
+* Curl to the pod IP is successful
+* Ping to summary fails
+* Curl to summary is successful
 
-We have already setup NodePort 30180 for the customer service.
-Verify external access from your browser.
+As we have learned in Lab3, services are serviced by kube-proxy, which load-balances the service request to backing pods. The service is listening to TCP port 80 so the ping failure is expected.
+
+Verify external access connectivity from your bastion node to the customer service `NodePort:30180`.
 
 ```
 http://54.187.212.58:30180/

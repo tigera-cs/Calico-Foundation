@@ -178,7 +178,7 @@ TCP  ip-10-49-120-28.eu-west-1.co rr
 ```
 
 
-If you try connecting to our `service-nginx` created in this lab from any of the worker node, the connection should randonmly go through and fail due to our previously implemented network policy blocking the traffic. The connections only go through when kube-proxy forwards the traffic to an endpoint local to the node. This is because nodes have privileged access to the pods running on them.
+If you try connecting to our `service-nginx` created in this lab from any of the worker nodes, the connection should randonmly go through and fail due to our previously implemented network policy blocking the traffic. The connections only go through when kube-proxy forwards the traffic to an endpoint local to the node. This is because nodes have privileged access to the pods running on them.
 
 Try connecting `service-nginx` from worker1  for few times and notice the behavior.
 

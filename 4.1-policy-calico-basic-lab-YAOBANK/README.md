@@ -180,28 +180,28 @@ spec:
         - containerPort: 80
 ---
 EOF
-```
-
-
-### 4.1.1. Verify connectivity from CentOS pod
-
-Let's start with checking the ip address information of our deployment.
 
 ```
-kubectl get pod -n yaobank -o wide
-NAME                        READY   STATUS    RESTARTS   AGE   IP              NODE           NOMINATED NODE   READINESS GATES
-customer-84c7855fd4-55r26   1/1     Running   0          79m   10.48.110.14    ip-10-0-0-11   <none>           <none>
-database-56fb9496bb-mdch5   1/1     Running   0          78m   10.48.194.175   ip-10-0-0-12   <none>           <none>
-summary-7f89fbcc7c-tsqjz    1/1     Running   0          89m   10.48.194.174   ip-10-0-0-12   <none>           <none>
-summary-7f89fbcc7c-vl9px    1/1     Running   0          67m   10.48.177.96    ip-10-0-0-10   <none>           <none>
+
+Let's start by finding the IP address of the summary service and pods.
+
+```
+kubectl get pod -n yaobank -l app=summary -o wide
 ```
 
 ```
-ubuntu@ip-10-0-0-11:~$ kubectl get svc -n yaobank
-NAME       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
-customer   NodePort    10.49.46.93    <none>        80:30180/TCP   98m
-database   ClusterIP   10.49.80.6     <none>        2379/TCP       98m
-summary    ClusterIP   10.49.96.126   <none>        80/TCP         98m
+NAME                       READY   STATUS    RESTARTS   AGE     IP            NODE                                      NOMINATED NODE   READINESS GATES
+summary-748b977d44-6m6gd   1/1     Running   0          2m48s   10.48.0.198   ip-10-0-1-31.eu-west-1.compute.internal   <none>           <none>
+summary-748b977d44-hmkq7   1/1     Running   0          2m48s   10.48.0.13    ip-10-0-1-30.eu-west-1.compute.internal   <none>           <none>
+```
+
+```
+kubectl get svc -n yaobank -l app=summary -o wide
+```
+
+```
+NAME      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE     SELECTOR
+summary   ClusterIP   10.49.202.152   <none>        80/TCP    3m59s   app=summary
 ```
 
 Next, Let's exec into the CentOS pod and verify connectivity to the nginx pod.

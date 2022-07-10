@@ -13,7 +13,7 @@ This is the 3rd of a series of labs about k8s services. This lab exposes the Yao
 
 This lab builds on top of the previous labs. Please make sure you have completed all the previous labs before starting this lab.
 
-### emove previous yaobank namespace
+### Remove previous yaobank namespace
 
 In this lab, we will be exposing the Yaobank Customer service using ingress controller. Let's start with removing the previous yaobank deployment and proceed to deploying the new configuration. For simplicity, let's just remove the namespace, which deletes all included objects. It might take 1-2 minutes for the namespace to get deleted. Please wait until the namespace is deleted.
 

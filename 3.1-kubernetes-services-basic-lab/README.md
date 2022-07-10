@@ -42,7 +42,7 @@ database   10.48.128.0:2379                  20m
 summary    10.48.128.1:80,10.48.128.192:80   20m
 ```
 
-List the pods.
+List the pods in the yaobank namespace.
 
 ```
 kubectl get pods -n yaobank -o wide

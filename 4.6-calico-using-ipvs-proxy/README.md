@@ -214,19 +214,73 @@ EOF
 
 Open two terminal sessions and SSH into worker1. Note that both of the following commands need to run from the same host.
 
-Run the following script to generate traffic for the `service-nginx` and check the output stats in other terminal.
 
-```
-for i in {1..30}; do  curl <service-ip>:80 ; done
-```
-
-In the other tab, analyze the packet flow per second using the following command.
+Run the following command to analyze the packet flow per second in IPVS mode. Initially, all the traffic counters need to be zero for `service-nginx`.
 
 ```
 watch sudo ipvsadm -L -n --rate
 
 ```
 
-You should see the traffic getting distributed among the pods using `rr algorithm`'
+Run the following script to generate traffic for the `service-nginx` service and check the output stats in other terminal again. This time you should see the traffic counters increasing. Please make sure to replace the service IP in the following command.
+
+```
+for i in {1..30}; do  curl <service-ip>:80 ; done
+```
+
+You should see the traffic getting distributed among the pods using `rr algorithm`' Following is a sample output.
+
+```
+Every 2.0s: sudo ipvsadm -L -n --rate                                                                                                                                                                                                                                                                   ip-10-0-1-30.eu-west-1.compute.internal: Sun Jul 10 18:11:16 2022
+
+IP Virtual Server version 1.2.1 (size=4096)
+Prot LocalAddress:Port                 CPS    InPPS   OutPPS    InBPS   OutBPS
+  -> RemoteAddress:Port
+TCP  172.17.0.1:30180                    0        0        0        0        0
+  -> 10.48.0.14:80                       0        0        0        0        0
+TCP  10.0.1.30:30180                     0        0        0        0        0
+  -> 10.48.0.14:80                       0        0        0        0        0
+TCP  10.49.0.1:443                       0        0        0        0        0
+  -> 10.0.1.20:6443                      0        0        0        0        0
+TCP  10.49.0.10:53                       0        0        0        0        0
+  -> 10.48.0.1:53                        0        0        0        0        0
+  -> 10.48.0.193:53                      0        0        0        0        0
+TCP  10.49.0.10:9153                     0        0        0        0        0
+  -> 10.48.0.1:9153                      0        0        0        0        0
+  -> 10.48.0.193:9153                    0        0        0        0        0
+TCP  10.49.23.129:80                     0        0        0        0        0
+  -> 10.48.0.199:80                      0        0        0        0        0
+TCP  10.49.72.138:443                    0        0        0        0        0
+  -> 10.0.1.30:8443                      0        0        0        0        0
+  -> 10.0.1.31:8443                      0        0        0        0        0
+TCP  10.49.97.116:9094                   0        0        0        0        0
+  -> 10.48.0.192:9094                    0        0        0        0        0
+TCP  10.49.119.221:2379                  0        0        0        0        0
+  -> 10.48.0.12:2379                     0        0        0        0        0
+TCP  10.49.120.28:80                     1        6        4      399      995
+  -> 10.48.0.18:80                       0        2        1      133      332
+  -> 10.48.0.201:80                      0        2        1      133      332
+  -> 10.48.0.202:80                      0        2        1      133      332
+TCP  10.49.138.47:443                    0        0        0        0        0
+  -> 10.48.0.3:5443                      0        0        0        0        0
+  -> 10.48.0.194:5443                    0        0        0        0        0
+TCP  10.49.149.29:5473                   0        0        0        0        0
+  -> 10.0.1.30:5473                      0        0        0        0        0
+  -> 10.0.1.31:5473                      0        0        0        0        0
+TCP  10.49.160.175:80                    0        0        0        0        0
+  -> 10.48.0.14:80                       0        0        0        0        0
+TCP  10.49.191.55:80                     0        0        0        0        0
+  -> 10.48.0.16:80                       0        0        0        0        0
+  -> 10.48.0.17:80                       0        0        0        0        0
+  -> 10.48.0.200:80                      0        0        0        0        0
+TCP  10.49.202.152:80                    0        0        0        0        0
+  -> 10.48.0.13:80                       0        0        0        0        0
+  -> 10.48.0.198:80                      0        0        0        0        0
+TCP  127.0.0.1:30180                     0        0        0        0        0
+  -> 10.48.0.14:80                       0        0        0        0        0
+UDP  10.49.0.10:53                       0        0        0        0        0
+  -> 10.48.0.1:53                        0        0        0        0        0
+  -> 10.48.0.193:53                      0        0        0        0        0
+```
 
 

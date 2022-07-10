@@ -1,34 +1,43 @@
 ## 4.3. Network Policy - Advanced Lab
 
-This is the 2nd lab in a series of labs exploring network policies.
+This is the 3rd lab in a series of labs exploring network policies.
 
 In this lab you will:
-4.3.1. Create Egress Lockdown policy as a Security Admin for the cluster
-4.3.2. Grant selective Internet access
-4.3.3. Protect the Host
-4.3.4. Add Policy for Kubernetes NodePorts
 
-### 4.3.0. Before you begin
+* Create Egress Lockdown policy as a Security Admin for the cluster
+* Grant selective Internet access
+* Protect the Host
+* Add Policy for Kubernetes NodePorts
 
-This lab builds on the previous lab and cannot be run independently. So if you haven't already done so, please go back and complete lab 4.2.
-In the K8s Network Policy deployed in the Policy fundamentals lab, the developer's policy allows all pod egress, even to the Internet.
+### Before you begin
+
+This lab builds on top of the previous labs. Please make sure you have completed the previous labs before starting this lab.
 
 
-### 4.3.1. Create Egress Lockdown policy as a Security Admin for the cluster
+### Create Egress Lockdown policy as a Security Admin for the cluster
 
 This lab guides you through the process of deploying a egress lockdown policy in our cluster.
-In Lab4.2, we have applied a policy that allows all pod access. Best-practices call for a restrictive policy that allows minimal access and denies everything else.
-Let's first start with verifying connectivity with the configuration of Lab4.2 already applied.
+In the previous lab, we have applied a policy that allows egress access to the pods. Best-practices call for a restrictive policy that allows minimal access and denies everything else.
 
-#### 4.3.1.1. Confirm that pods are able to initiate connections to the Internet
+Let's first start with verifying connectivity with the configuration applied in the previous lab. Confirm that pods are able to initiate connections to the Internet.
 
 Access the customer pod.
 
 ```
 CUSTOMER_POD=$(kubectl get pod -l app=customer -n yaobank -o jsonpath='{.items[0].metadata.name}')
+echo $CUSTOMER_POD
 kubectl exec -ti $CUSTOMER_POD -n yaobank -c customer bash
+```
+
+```
 ping -c 3 8.8.8.8
+```
+
+```
 curl -I www.google.com
+```
+
+```
 exit
 ```
 

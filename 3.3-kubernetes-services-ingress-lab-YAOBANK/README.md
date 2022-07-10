@@ -252,6 +252,9 @@ EOF
 
 Verify that the ingress resource has been successfully deployed.
 
+```
+kubectl get ingress -n yaobank
+```
 
 ```
 $ kubectl get svc -n yaobank

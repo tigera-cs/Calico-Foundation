@@ -257,53 +257,26 @@ kubectl get ingress -n yaobank
 ```
 
 ```
-$ kubectl get svc -n yaobank
-
-NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-customer   ClusterIP   10.49.59.203    <none>        80/TCP     26h
-database   ClusterIP   10.49.156.95    <none>        2379/TCP   26h
-summary    ClusterIP   10.49.150.206   <none>        80/TCP     26h
-
+NAME                       CLASS    HOSTS              ADDRESS               PORTS   AGE
+ingress-yaobank-customer   <none>   *.lynx.tigera.ca   10.0.1.30,10.0.1.31   80      34s
 ```
 
+Check the connectivity to the customer service `https:\\<LabName>.lynx.tigera.ca` via your browser. 
 
 
-Verify access to the service from within the cluster.
 
-```
-$ curl 10.49.59.203
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>YAO Bank</title>
-    <style>
-    h2 {
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    h1 {
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    p {
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    </style>
-  </head>
-  <body>
-  	<h1>Welcome to YAO Bank</h1>
-  	<h2>Name: Spike Curtis</h2>
-  	<h2>Balance: 2389.45</h2>
-  	<p><a href="/logout">Log Out >></a></p>
-  </body>
+Note we do not use a NodePort service anymore for our customer application in this last manifest as now we use the ingress to access it.
 
 ```
+kubectl get svc -n yaobank
+```
 
+```
+NAME       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+customer   ClusterIP   10.49.61.230   <none>        80/TCP     5m54s
+database   ClusterIP   10.49.230.94   <none>        2379/TCP   5m54s
+summary    ClusterIP   10.49.216.86   <none>        80/TCP     5m54s
+```
 
-
-Now verify access from outside of the cluster using your browser via the following url:
-
-http://username.lab.tigera.ca:32080
 
 > Congratulations! You have successfully completed your k8s services training module.

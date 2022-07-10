@@ -11,7 +11,7 @@ This is the 3rd of a series of labs about k8s services. This lab exposes the Yao
 
 ### Before you begin
 
-This lab builds on top of the previous labs. Please make sure you have completed all the labs before starting this lab.
+This lab builds on top of the previous labs. Please make sure you have completed all the previous labs before starting this lab.
 
 ### emove previous yaobank namespace
 

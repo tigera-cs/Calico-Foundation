@@ -5,6 +5,7 @@ This is the 3rd of a series of labs about k8s services. This lab exposes the Yao
 * Remove previous yaobank namespace
 * Deploy an ingress controller that listens to all namespaces
 * Deploy an updated yaobank manifest including ingress
+* Lab cleanup
 
 
 
@@ -278,5 +279,12 @@ database   ClusterIP   10.49.230.94   <none>        2379/TCP   5m54s
 summary    ClusterIP   10.49.216.86   <none>        80/TCP     5m54s
 ```
 
+### Lab cleanup
+
+We will need to use yaobank application using NodePort service. Let's delete the yaobank namespace as we will need deploy it again.
+
+```
+kubectl delete namespace yaobank
+```
 
 > Congratulations! You have successfully completed your k8s services training module.

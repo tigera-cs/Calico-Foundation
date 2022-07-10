@@ -28,8 +28,7 @@ kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 ```
 You are now logged in and ready to launch the attack.
 
-#### 4.2.1.2. Access the Database
-From within the customer pod, attempt to access the database directly. The attack will succeed, and the balance of all users will be returned. This is expected as there are no policies limiting access yet.
+From within the customer pod, attempt to access the database directly. The attack will succeed and the balance of all users will be returned. This is expected as there are no policies limiting access yet.
 
 ```
 curl http://database:2379/v2/keys?recursive=true | python -m json.tool

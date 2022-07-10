@@ -189,7 +189,7 @@ default via 10.0.1.1 dev ens5 proto dhcp src 10.0.1.10 metric 100
 You should now have a `/32` route for the yaobank customer service (`10.49.206.189` in the above example output) advertised from the node hosting the customer service pod (worker1, `10.0.1.30` in this example output).
 
 ```
-kubectl get pods -n yaobank -l app=customer
+kubectl get pods -n yaobank -l app=customer -o wide
 ```
 
 ```

@@ -1,8 +1,9 @@
 ## 4.1. Policy: Basic Calico Network Policy Lab
 This is the first lab of a series of labs focusing on Calico k8s network policy. Throughout this lab we will deploy and test our first Calico k8s network policy. 
+
 In this lab we will:
-4.1.1. Verify connectivity from customer pod
-4.1.2. Apply a simple Calico Policy
+* Verify connectivity from customer pod
+* Apply a simple Calico Policy
 
 ### 4.1.0. Before you begin
 

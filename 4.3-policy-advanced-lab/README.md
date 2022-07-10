@@ -6,7 +6,7 @@ In this lab you will:
 
 * Create Egress Lockdown policy as a Security Admin for the cluster
 * Grant selective Internet access
-* 
+* Apply policy to Kubernetes services
 
 
 ### Before you begin
@@ -150,6 +150,100 @@ In this scenario, the SecOps team can control which teams should be allowed to h
 
 This is just one way of dividing responsibilities across teams.  Pods, Namespaces, and Service Accounts all have separate Kubernetes RBAC controls and they can all be used to select workloads in Calico network policies.
 
+### Apply policy to Kubernetes services
+
+Calico and Kubernetes policies are always implemented based on endpoint labels. However, Calico provides a convenient way of defining policies based on Kubernetes Services and Calico dynamically in the backend implements and enforces the policy on the associated endpoints.
+
+Let's start by creating an application that is composed of a server and a client component. 
+
+```
+kubectl apply -f -<<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginxapp
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-client
+  namespace: nginxapp
+  labels:
+    app: nginx-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-client
+  template:
+    metadata:
+      name: nginx-client
+      labels:
+        app: nginx-client
+    spec:
+      containers:
+      - image: praqma/network-multitool
+        imagePullPolicy: IfNotPresent
+        name: multitool
+        ports:
+        - containerPort: 80
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx-client
+  name: nginx-client
+  namespace: nginxapp
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx-client
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-server
+  namespace: nginxapp
+  labels:
+    app: nginx-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-server
+  template:
+    metadata:
+      labels:
+        app: nginx-server
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx-server
+  name: nginx-server
+  namespace: nginxapp
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx-server
+EOF
+
+```
 
 
 

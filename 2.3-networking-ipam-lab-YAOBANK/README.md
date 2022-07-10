@@ -53,7 +53,7 @@ Note the relevant information in the manifest:
 * allowedUses: specifies if this IPPool can be used for tunnel interfaces, workload interfaces, or both.
 * blockSize: used by Calico IPAM to efficiently assign IPAM Blocks to node and advertise them between different nodes.
 * cidr: specifies the IP range to be used for this IPPool.
-* ipipMode/vxlanMode: to enable or disable ipip and vxlan overlay. options are never, always and crosssubnet.
+* ipipMode/vxlanMode: used to enable or disable ipip and vxlan overlay. options are never, always and crosssubnet.
 * natOutgoing: specifies if SNAT should happen when pods try to connect to destination outside the cluster. `natOutgoing` must be set to `true` when using overlay networking mode for external connectivity.
 * nodeSelector: selects the nodes that Calico IPAM should assign addresses from this pool to.
 

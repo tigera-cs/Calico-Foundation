@@ -44,15 +44,13 @@ exit
 
 This succeeds since the policy in place allows full internet access.
 
-Let's now create a Calico GlobalNetworkPolicy to restrict Egress to the Internet to only pods that have the ServiceAccount that is labeled  "internet-egress = allowed".
+Let's now create a Calico GlobalNetworkPolicy to restrict egress access to the Internet to only pods that have the ServiceAccount that is labeled  "internet-egress = allowed".
 
-#### 4.3.1.2. Examine and apply the network policy
 
-Examine the policy before applying it. While Kubernetes network policies only have Allow rules, Calico network policies also support Deny rules. As this policy has Deny rules in it, it is important that we set its precedence higher than the K8s policy Allow rules. To do this we specify `order`  value of 600 in this policy, which gives it higher precedence than the k8s policy (which does not have the concept of policy precedence, and is assigned a fixed order value of 1000 by Calico). 
+Examine the policy before applying it. While Kubernetes network policies only have Allow rules, Calico network policies also support Deny rules. As this policy has Deny rules in it, it is important that we set its precedence higher than the K8s policy Allow rules. To do this, we specify `order`  value of 600 in this policy, which gives it higher precedence than the k8s policy (which does not have the concept of policy precedence, and is assigned a fixed order value of 1000 by Calico). 
 
 ```
-more 4.3-egress-lockdown.yaml
-
+kubectl apply -f -<<EOF
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
@@ -76,6 +74,7 @@ spec:
           - 10.49.0.0/16
           - 10.50.0.0/24
           - 10.0.0.0/24
+EOF
 
 ```
 Notice the notNets destination parameter that excludes known cluster networks from the deny rule. This is another feature specific to calico that allows matching based on ip subnets.

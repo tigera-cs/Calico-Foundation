@@ -2,201 +2,180 @@
 
 This is the 3rd of a series of labs about k8s services. This lab exposes the Yaobank Customer service to the outside via ingress controller. In this lab, you will: 
 
-3.3.1. Remove previous Yaobank deployment
-3.3.2. Deploy an ingress controller that listens to all namespaces
-3.3.3. Deploy an updated Yaobank manifest including ingress
+* Remove previous yaobank namespace
+* Deploy an ingress controller that listens to all namespaces
+* Deploy an updated yaobank manifest including ingress
 
 
 
-### 3.3.0. Before you begin
+### Before you begin
 
-This lab leverages the lab deployment we have developed so far. If you haven't already done so:
-* Deploy Calico as described in Lab1
-* Add host1 as a BGP peer as described in Lab2.2
+This lab depends builds on top of the previous labs. Please make sure you have completed all the labs before starting this lab.
 
-### 3.3.1. Remove previous Yaobank deployment
+### emove previous yaobank namespace
 
-In this lab, we will be exposing the Yaobank Customer service using ingress controller. Let's start with removing the previous Yaobank deployment and proceed to deploying the new configuration. For simplicity, let's just remove the namespace which deletes all included objects.
+In this lab, we will be exposing the Yaobank Customer service using ingress controller. Let's start with removing the previous yaobank deployment and proceed to deploying the new configuration. For simplicity, let's just remove the namespace, which deletes all included objects. It might take 1-2 minutes for the namespace to get deleted. Please wait until the namespace is deleted.
 
 ```
 kubectl delete ns yaobank
 ```
 
+### Deploy an ingress controller that listens to all namespaces
+
+Ingress is the built-in kubernetes framework for load-balancing http traffic. Cloud providers offer a similar functionality out of the box via cloud load-balancers. Ingress allows the manipulation of incoming http requests, natting/routing traffic to back-end services based on provided host/path, or even passing-through traffic. It can effectively provide L7-based policies and typical load-balancing features such as stickiness, health probes, or weight-based load-balancing.
 
 
-### 3.3.2. Deploy an ingress controller that listens to all namespaces
-
-Ingress is the built-in kubernetes framework for load-balancing http traffic. Cloud providers offer a similar functionality out of the box via cloud load-balancers. Ingress allows the manipulation of incoming http requests, natting/routing traffic to back-end services based on provided host/path or even passing-through traffic. It can effectively proved l7-based policies and typical load-balancing features such as stickiness, health probes or weight-based load-balancing.
-
-
-
-Let's start with examining and the n applying the manifest that sets-up ingress-controller.
+Let's start with examining the already predeployed ingress controller.
 
 ```
-cat 3.3-ingress-controller.yaml
+kubectl get all -n ingress-nginx
+```
+
+```
+NAME                                       READY   STATUS      RESTARTS   AGE
+pod/ingress-nginx-admission-create-r4zr4   0/1     Completed   0          8h
+pod/ingress-nginx-admission-patch-g2vsb    0/1     Completed   0          8h
+pod/ingress-nginx-controller-4ssll         1/1     Running     0          7h17m
+pod/ingress-nginx-controller-xhj56         1/1     Running     0          7h17m
+
+NAME                                         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/ingress-nginx-controller-admission   ClusterIP   10.49.72.138   <none>        443/TCP   8h
+
+NAME                                      DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+daemonset.apps/ingress-nginx-controller   2         2         2       2            2           kubernetes.io/os=linux   8h
+
+NAME                                       COMPLETIONS   DURATION   AGE
+job.batch/ingress-nginx-admission-create   1/1           71m        8h
+job.batch/ingress-nginx-admission-patch    1/1           71m        8h
+```
+
+Key things to look in the output are:
+
+* The ingress has been deployed as a DaemonSet to be run on each of the worker nodes, so you must have two of them running.
+* The ingress controller uses a service of type ClusterIP listening on port 443.
+
+Nginx ingress controller, by default, listens to all namespaces. Once an Ingress object is created in any namespace, it will create the necessary rules to forward the traffic. This default behaviour can be modified to limit ingress controller to a specific namespace.
+
+Currently we have not created any ingress resource yet. So if we try to access our lab instance on port 443 using our browser `https:\\<LabName>.lynx.tigera.ca`, we will get a 404 error from our ingress controller.
+
+
+
+### 3.3.3. Deploy an updated yaobank manifest including ingress
+
+
+```
+kubectl apply -f -<<EOF
+apiVersion: v1
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: yaobank
+  labels:
+    istio-injection: disabled
 
 ---
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: yaobank
+  labels:
+    app: database
+spec:
+  ports:
+  - port: 2379
+    name: http
+  selector:
+    app: database
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: database
+  namespace: yaobank
+  labels:
+    app: yaobank
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-ingress-controller
-  namespace: ingress-nginx
-  labels:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+  name: database
+  namespace: yaobank
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: ingress-nginx
-      app.kubernetes.io/part-of: ingress-nginx
+      app: database
+      version: v1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: ingress-nginx
-        app.kubernetes.io/part-of: ingress-nginx
-      annotations:
-        prometheus.io/port: "10254"
-        prometheus.io/scrape: "true"
+        app: database
+        version: v1
     spec:
-      # wait up to five minutes for the drain of connections
-      terminationGracePeriodSeconds: 300
-      serviceAccountName: nginx-ingress-serviceaccount
-      nodeSelector:
-        kubernetes.io/os: linux
+      serviceAccountName: database
       containers:
-        - name: nginx-ingress-controller
-          image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:master
-          args:
-            - /nginx-ingress-controller
-            - --configmap=$(POD_NAMESPACE)/nginx-configuration
-            - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
-            - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
-            - --publish-service=$(POD_NAMESPACE)/ingress-nginx
-            - --annotations-prefix=nginx.ingress.kubernetes.io
-          securityContext:
-            allowPrivilegeEscalation: true
-            capabilities:
-              drop:
-                - ALL
-              add:
-                - NET_BIND_SERVICE
-            # www-data -> 101
-            runAsUser: 101
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-            - name: https
-              containerPort: 443
-              protocol: TCP
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /healthz
-              port: 10254
-              scheme: HTTP
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /healthz
-              port: 10254
-              scheme: HTTP
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 10
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                  - /wait-shutdown
-
+      - name: database
+        image: calico/yaobank-database:certification
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 2379
+        command: ["etcd"]
+        args:
+          - "-advertise-client-urls"
+          - "http://database:2379"
+          - "-listen-client-urls"
+          - "http://0.0.0.0:2379"
+      nodeSelector:
+        kubernetes.io/hostname: "ip-10-0-1-30.ca-central-1.compute.internal"
 ---
-
----
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: ingress-nginx
-  namespace: ingress-nginx
+  name: summary
+  namespace: yaobank
   labels:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    app: summary
 spec:
-  type: NodePort
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
-      nodePort: 32080
-      protocol: TCP
-    - name: https
-      port: 443
-      targetPort: 443
-      nodePort: 32443
-      protocol: TCP
+  - port: 80
+    name: http
   selector:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
-
+    app: summary
 ---
-
-```
-
-
-
-The above configuration sets-up the deployment and service for ingress-controller. By default it listens to all namespaces, once an Ingress object is created in any namespace. This default behaviour can be modified to limit ingress-controller to a specific namespace. Note the nodeport configuration which is exposing port 80 to external port 32080 and port 443 to external port 32443.
-
-Let's proceed with applying the manifest to setup ingress-controller.
-
-```
-kubectl apply -f 3.3-ingress-controller.yaml
-```
-
-
-
-Let's examine the output to verify the outcome of the configuration. Note the ports the  service is listening and forwarding to.
-
-
-
-```
-$kubectl get pod -n ingress-nginx -o wide
-
-NAME                                        READY   STATUS    RESTARTS   AGE   IP             NODE           NOMINATED NODE   READINESS GATES
-nginx-ingress-controller-6d96448d6c-d9pqs   1/1     Running   0          22h   10.48.177.96   ip-10-0-0-10   <none>           <none>
-
-$ kubectl get svc -n ingress-nginx 
-NAME            TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-ingress-nginx   NodePort   10.49.219.161   <none>        80:32080/TCP,443:32443/TCP   22h
-
-```
-
-
-
-
-
-### 3.3.3. Deploy an updated Yaobank manifest including ingress
-
-Next, let's examine the updated Yaobank configuration manifest and then apply it.  We have extracted the modification in this manifest versus the original Yaobank manifest.
-
-```
-$ cat 3.3-yaobank.yaml
-
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: summary
+  namespace: yaobank
+  labels:
+    app: yaobank
+    database: reader
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summary
+  namespace: yaobank
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: summary
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: summary
+        version: v1
+    spec:
+      serviceAccountName: summary
+      containers:
+      - name: summary
+        image: calico/yaobank-summary:certification
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -211,27 +190,71 @@ spec:
     name: http
   selector:
     app: customer
-
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: customer
+  namespace: yaobank
+  labels:
+    app: yaobank
+    summary: reader
 ---
 
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+  namespace: yaobank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: customer
+        version: v1
+    spec:
+      serviceAccountName: customer
+      containers:
+      - name: customer
+        image: calico/yaobank-customer:certification
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      nodeSelector:
+        kubernetes.io/hostname: "ip-10-0-1-31.ca-central-1.compute.internal"
+---
+
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-yaobank-customer 
-  namespace: yaobank
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+  name: ingress-yaobank-customer
+  namespace: yaobank
 spec:
   rules:
-  - host: jad.lab.tigera.ca
+  - host: '*.lynx.tigera.ca'
     http:
       paths:
-      - path: /
-        backend:
-          serviceName: customer
-          servicePort: 80
+      - backend:
+          service:
+            name: customer
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+EOF
 
 ```
+
+
+
+
 
 Notice the change to the service where nodeport configuration has been removed.
 

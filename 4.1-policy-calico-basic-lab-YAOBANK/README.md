@@ -244,7 +244,7 @@ You should have the following behaviour:
 * Ping to summary fails
 * Curl to summary is successful
 
-As we have learned in Lab3, services are serviced by kube-proxy, which load-balances the service request to backing pods. The service is listening to TCP port 80 so the ping failure is expected.
+As we have learned in Lab3, services are serviced by kube-proxy, which load-balances the service request to backing pods. The service is listening to TCP port 80 so the ping failure is expected. Service IP addresses are virtual IP addresses and are not pingable.
 
 Verify external access connectivity from your bastion node to the customer service `NodePort:30180`.
 

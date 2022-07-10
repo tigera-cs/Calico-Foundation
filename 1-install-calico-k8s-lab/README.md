@@ -11,7 +11,7 @@ Please note that the node names can change based on you lab instance, but the fo
 To ssh into these nodes, use the following command.
 * (ssh NodeName) where node names are (control1/worker1/worker2)
 
-![yaobank](img/0.Lab-Setup.PNG)
+![lab scenario](img/0.Lab-Setup.PNG)
 
 # 1. Install Calico
 

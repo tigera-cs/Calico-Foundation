@@ -60,7 +60,9 @@ Currently we have not created any ingress resource yet. So if we try to access o
 
 
 
-### 3.3.3. Deploy an updated yaobank manifest including ingress
+### Deploy an updated yaobank manifest including ingress
+
+Let's check our modified yaobank application, which includes an ingress resource at the end of the manifest.
 
 
 ```
@@ -248,17 +250,7 @@ EOF
 
 ```
 
-
-Notice the change to the service where nodeport configuration has been removed.
-
-Ingress configuration has been added, tapping into the cluster ingress-controller.
-
-Let's apply the configuration and examine the outcom```
-
-```
-$ kubectl apply -f 3.3-yaobank.yaml
-```
-
+Verify that the ingress resource has been successfully deployed.
 
 
 ```

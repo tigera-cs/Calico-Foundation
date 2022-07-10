@@ -4,8 +4,7 @@
 
 Calico has support for kube-proxy’s ipvs proxy mode. Calico ipvs support is activated automatically if Calico detects that kube-proxy is running in that mode.
 
-ipvs mode provides greater scale and performance vs iptables mode. However, it comes with some limitations. In IPVS mode
-– Its a good kick-start activity to understand Calico Enterprise capabilities.
+ipvs mode provides greater scale and performance vs iptables mode. 
 
 ## Requirements
 

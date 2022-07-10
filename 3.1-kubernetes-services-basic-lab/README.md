@@ -1,6 +1,6 @@
 ## 3.1. Kubernetes Services - Basic Lab
 
-This is the 1st lab in a series of labs about k8s services. This lab explores the concepts related to k8s services and the drills down into the iptables chains that enable Kube Proxy to deliver the service.
+This is the 1st lab in a series of labs about k8s services. This lab explores the concepts related to k8s services and the drills down into the iptables chains that enable kube-proxy to deliver the service.
 
 In this lab, you will:
 

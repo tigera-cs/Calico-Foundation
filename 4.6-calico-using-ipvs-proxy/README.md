@@ -45,9 +45,7 @@ kubectl -n kube-system edit cm kube-proxy
 2. Delete all the active proxy pods
 
 ```
-kubectl get pods -n kube-system
-
-kubectl delete pod --namespace=kube-system kube-proxy-<name>
+for i in $(kubectl get pods -n kube-system -o name | grep kube-proxy) ; do kubectl delete $i -n kube-system ; done
 ```
 
 3. Check the logs of new kube-proxy pods

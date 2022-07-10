@@ -360,6 +360,7 @@ spec:
         - containerPort: 80
 ---
 EOF
+
 ```
 
 Check the status of the pods. Make sure all the pods are in Running status.

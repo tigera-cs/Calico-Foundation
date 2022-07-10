@@ -212,7 +212,7 @@ EOF
 
 ```
 
-Open two terminal sessions and SSH into worker1. 
+Open two terminal sessions and SSH into worker1. Note that both of the following commands need to run from the same host.
 
 Run the following script to generate traffic for the `service-nginx` and check the output stats in other terminal.
 

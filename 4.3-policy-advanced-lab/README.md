@@ -21,7 +21,7 @@ In the previous lab, we have applied a policy that allows egress access to the p
 
 Let's first start with verifying connectivity with the configuration applied in the previous lab. Confirm that pods are able to initiate connections to the Internet.
 
-Access the customer pod.
+Exec into the customer pod.
 
 ```
 CUSTOMER_POD=$(kubectl get pod -l app=customer -n yaobank -o jsonpath='{.items[0].metadata.name}')
@@ -77,21 +77,31 @@ spec:
 EOF
 
 ```
-Notice the notNets destination parameter that excludes known cluster networks from the deny rule. This is another feature specific to calico that allows matching based on ip subnets.
-Now let's apply the policy.
-```
-calicoctl apply -f 4.3-egress-lockdown.yaml
-```
+Notice the notNets destination parameter that excludes known cluster networks from the deny rule. 
 
-#### 4.3.1.3. Verify access the Internet
+Verify Internet access again. Exe into the customer pod.
 
 ```
+CUSTOMER_POD=$(kubectl get pod -l app=customer -n yaobank -o jsonpath='{.items[0].metadata.name}')
+echo $CUSTOMER_POD
 kubectl exec -ti $CUSTOMER_POD -n yaobank -c customer bash
+
+```
+
+```
 ping -c 3 8.8.8.8
+```
+
+```
 curl -I www.google.com
 ```
 
-These commands should fail - pods are now restricted to only accessing other pods and nodes within the cluster. You may need to terminate the command with CTRL- and exit back to your node.
+```
+exit
+```
+
+These commands should fail. Pods are now restricted to only accessing other pods and nodes within the cluster. You may need to terminate the command with ctrl+c and exit back to your node.
+
 ```
 exit
 ```

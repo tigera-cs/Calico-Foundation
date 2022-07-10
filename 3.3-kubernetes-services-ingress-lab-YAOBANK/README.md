@@ -126,8 +126,6 @@ spec:
           - "http://database:2379"
           - "-listen-client-urls"
           - "http://0.0.0.0:2379"
-      nodeSelector:
-        kubernetes.io/hostname: "ip-10-0-1-30.ca-central-1.compute.internal"
 ---
 apiVersion: v1
 kind: Service
@@ -225,8 +223,6 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 80
-      nodeSelector:
-        kubernetes.io/hostname: "ip-10-0-1-31.ca-central-1.compute.internal"
 ---
 
 apiVersion: networking.k8s.io/v1
@@ -251,9 +247,6 @@ spec:
 EOF
 
 ```
-
-
-
 
 
 Notice the change to the service where nodeport configuration has been removed.

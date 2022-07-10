@@ -58,7 +58,7 @@ If you are able to find the mentioned String in the logs, IPVS mode is being use
 
 ## Verify and Debug IPVS
 
-Users can use ipvsadm tool to check whether kube-proxy are maintaining IPVS rules correctly. This needs to be done from any of the cluster nodes and not the bastion node. WeIn this example, we will use the kubernetes APIserver.
+Users can use ipvsadm tool to check whether kube-proxy are maintaining IPVS rules correctly. This needs to be done from any of the cluster nodes and not the bastion node. WeIn this example, we will use the kubernetes APIserver. You can follow the below procedure to check on the IPVS loadbalancing rules for other services in the cluster.
 
 ```
 ssh worker1
@@ -82,7 +82,10 @@ sudo ipvsadm -ln | grep -A1 10.49.0.1:443
 ```
 
 ```
+TCP  10.49.0.1:443 rr
+  -> 10.0.1.20:6443               Masq    1      0          0    
 ```
+
 
 ## Why kube-proxy can't start IPVS mode
 Use the following check list to help you solve the problems:

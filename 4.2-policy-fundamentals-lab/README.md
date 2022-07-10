@@ -127,20 +127,26 @@ kubectl exec -ti $CUSTOMER_POD -n yaobank -- bash
 dig www.google.com
 ```
 
-That should fail, timing out after around 15s, because we do not have a policy in placing allowing DNS.
-Remember to exit from the kubectl exec of the customer pod by typing `exit`.
+```
+**root@customer-68d67b588d-pd9hn:/app# dig www.google.com
+
+; <<>> DiG 9.10.3-P4-Ubuntu <<>> www.google.com
+;; global options: +cmd
+;; connection timed out; no servers could be reached**
+```
+
+The name resolution request above should time out and fail after around 15s because we do not have a policy in place to allow DNS traffic.
+
+Exit the customer pod.
 
 ```
 exit
 ```
 
-#### 4.2.3.4. Allow DNS
-
-Now, let's examine and apply a  policy allowing DNS to the cluster internal kube-dns, and allowing kube-dns to communicate with anything.
+Now, let's examine and apply policies, which allow DNS traffic to the cluster internal kube-dns and also allow kube-dns to communicate with anything.
 
 ```
-more 4.2-globalallowdns.yaml
-
+kubectl apply -f -<<EOF
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
@@ -193,6 +199,7 @@ spec:
     destination:
       ports:
       - 53
+EOF
 ```
 
 The global policy allows all pods egress access to kube-dns and denies egress DNS requests to other DNS servers.  

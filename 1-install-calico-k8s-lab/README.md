@@ -50,7 +50,8 @@ ip-10-0-1-30.eu-west-1.compute.internal   NotReady    worker                 94m
 ip-10-0-1-31.eu-west-1.compute.internal   NotReady    worker                 94m   v1.21.7
 ```
 
-Calico will be the networking (CNI) and network policy provider throughout your training lab. To install Calico, we will use Calico operator, which provides a well-defined API for how you can install, configure, and run Calico.\
+Calico will be the networking (CNI) and network policy provider throughout your training lab. To install Calico, we will use Calico operator, which provides a well-defined API for how you can install, configure, and run Calico.
+
 let's deploy the lastest version of Calico operator by running the following command.
 
 ```

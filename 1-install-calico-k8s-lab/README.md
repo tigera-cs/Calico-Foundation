@@ -168,11 +168,12 @@ calico-apiserver-86767b7946-77f6z   1/1     Running   0          19m
 Let's install Calico command line tool called "calicoctl" as a binary in our bastion host.
 
 ```
-curl -L https://github.com/projectcalico/calico/releases/download/v3.23.3/calicoctl-linux-amd64 -o calicoctl
+curl -L https://github.com/projectcalico/calico/releases/download/v3.24.1/calicoctl-linux-amd64 -o calicoctl
 ```
 ```
 chmod +x calicoctl
 sudo mv calicoctl /usr/local/bin
+
 ```
 
 ## Install a sample application (Yaobank)

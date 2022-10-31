@@ -4,6 +4,10 @@
 
 Before enabling end-to-end encryption with Calico, you must first install WireGuard. Please refer to the instructions available here for your OS: https://www.wireguard.com/install/
 
+```bash
+sudo apt install wireguard
+```
+
 Before enabling the encryption feature, test to ensure that the wireguard module is loaded on each of the 3 nodes (control1, worker1, worker2) using the following command:
 
 ```bash

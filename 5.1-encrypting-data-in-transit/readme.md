@@ -121,6 +121,7 @@ spec:
   - image: praqma/network-multitool
     name: pod-2
   nodeName: ip-10-0-1-31.ca-central-1.compute.internal
+---
 EOF
 ```
 

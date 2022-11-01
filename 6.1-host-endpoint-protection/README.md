@@ -1,90 +1,12 @@
-# 7. Protecting non-cluster nodes with Calico Policy
-
-This lab will demonstrate how you can use Calico to protect hosts that are not kubernetes cluster nodes
+# 6. Automatic HostEndpoints Protection
 
 In this lab, you will: \
-7.1. Install calico on the bastion host and configure it with failsafes so that you will not lock yourself out by accident\
-7.2. Install a webserver that will be used as the target service \
-7.3. Enable Automatic HostEndpoints for your kubernetes cluster nodes \
-7.4. Configure a GlobalNetworkPolicy to allow traffic to the webserver \
-7.5. Configure a HostEndpoint for the bastion host that will start to enforce the traffic
+6.1. Install a webserver that will be used as the target service \
+6.2. Enable Automatic HostEndpoints for your kubernetes cluster nodes \
+6.3. Configure a GlobalNetworkPolicy to allow traffic to the webserver \
+6.4. Configure a HostEndpoint for the bastion host that will start to enforce the traffic
 
-## 7.1. Install Calico on the bastion host
-
-Install ipset on the bastion host as it is required by Calico 
-
-```
-sudo apt-get install -y ipset
-```
-
-Extract the cnx-node binary from the control1 node and transfer it to the bastion node
-
-```
-ssh control1
-```
-```
-sudo docker create --name container quay.io/tigera/cnx-node:v3.11.1
-sudo docker cp container:/bin/calico-node cnx-node
-sudo docker rm container
-```
-
-Get back to the bastion host, and prepare the binary
-
-```
-exit
-```
-```
-scp control1:cnx-node .
-sudo mv cnx-node /usr/local/bin/
-sudo chown root.root /usr/local/bin/cnx-node
-sudo chmod 755 /usr/local/bin/cnx-node
-```
-
-Calico will be started with a configuration file /etc/calico/calico.env from a systemd unit file
-
-```
-sudo mkdir /etc/calico
-```
-```
-sudo bash -c 'cat << EOF > /etc/calico/calico.env      
-FELIX_DATASTORETYPE=kubernetes
-KUBECONFIG=/home/tigera/.kube/config
-CALICO_NETWORKING_BACKEND=none
-FELIX_FAILSAFEINBOUNDHOSTPORTS="tcp:0.0.0.0/0:22,udp:0.0.0.0/0:68,udp:0.0.0.0/0:53,tcp:0.0.0.0/0:179"
-FELIX_FAILSAFEOUTBOUNDHOSTPORTS="tcp:0.0.0.0/0:22,udp:0.0.0.0/0:53,udp:0.0.0.0/0:67,tcp:0.0.0.0/0:179,tcp:0.0.0.0/0:6443"
-EOF'
-```
-```
-sudo bash -c 'cat << EOF > /etc/systemd/system/calico.service
-[Unit]
-Description=Calico Felix agent
-After=syslog.target network.target
-
-[Service]
-User=root
-EnvironmentFile=/etc/calico/calico.env
-ExecStartPre=/usr/bin/mkdir -p /var/run/calico
-ExecStart=/usr/local/bin/cnx-node -felix
-KillMode=process
-Restart=on-failure
-LimitNOFILE=32000
-
-[Install]
-WantedBy=multi-user.target
-EOF'
-```
-
-Reload systemd daemon, enable and start Calico
-
-```
-sudo systemctl daemon-reload
-sudo systemctl enable calico
-sudo systemctl start calico
-```
-
-If you execute `sudo systemctl status calico` in the bastion host, the service should be now in a running state.
-
-## 7.2. Emulate a running service
+## 6.1. Emulate a running service
 
 We will use netcat to simulate an application listening on port 7777 on the bastion node. Open a second tab to the lab (`http://<LABNAME>.lynx.tigera.ca`), and once logged in, execute the following command.
 

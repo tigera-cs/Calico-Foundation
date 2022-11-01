@@ -155,7 +155,22 @@ PING 10.48.0.217 (10.48.0.217) 56(84) bytes of data.
 5 packets transmitted, 5 received, 0% packet loss, time 4079ms
 rtt min/avg/max/mdev = 0.502/0.641/0.930/0.151 ms
 ```
-
+On the worker1 and worker2 you should see the packet captures on wireguard.cali interface which indicates the traffic is being encrypted on the wire.
+```bash
+ubuntu@ip-10-0-1-30:~$ sudo tcpdump -i wireguard.cali host 10.48.0.101
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on wireguard.cali, link-type RAW (Raw IP), capture size 262144 bytes
+06:34:06.145612 IP ip-10-48-0-101.ca-central-1.compute.internal > ip-10-48-0-217.ca-central-1.compute.internal: ICMP echo request, id 26, seq 1, length 64
+06:34:06.148131 IP ip-10-48-0-217.ca-central-1.compute.internal > ip-10-48-0-101.ca-central-1.compute.internal: ICMP echo reply, id 26, seq 1, length 64
+06:34:07.147298 IP ip-10-48-0-101.ca-central-1.compute.internal > ip-10-48-0-217.ca-central-1.compute.internal: ICMP echo request, id 26, seq 2, length 64
+06:34:07.147915 IP ip-10-48-0-217.ca-central-1.compute.internal > ip-10-48-0-101.ca-central-1.compute.internal: ICMP echo reply, id 26, seq 2, length 64
+06:34:08.163928 IP ip-10-48-0-101.ca-central-1.compute.internal > ip-10-48-0-217.ca-central-1.compute.internal: ICMP echo request, id 26, seq 3, length 64
+06:34:08.164407 IP ip-10-48-0-217.ca-central-1.compute.internal > ip-10-48-0-101.ca-central-1.compute.internal: ICMP echo reply, id 26, seq 3, length 64
+06:34:09.187823 IP ip-10-48-0-101.ca-central-1.compute.internal > ip-10-48-0-217.ca-central-1.compute.internal: ICMP echo request, id 26, seq 4, length 64
+06:34:09.188201 IP ip-10-48-0-217.ca-central-1.compute.internal > ip-10-48-0-101.ca-central-1.compute.internal: ICMP echo reply, id 26, seq 4, length 64
+06:34:10.211824 IP ip-10-48-0-101.ca-central-1.compute.internal > ip-10-48-0-217.ca-central-1.compute.internal: ICMP echo request, id 26, seq 5, length 64
+06:34:10.212667 IP ip-10-48-0-217.ca-central-1.compute.internal > ip-10-48-0-101.ca-central-1.compute.internal: ICMP echo reply, id 26, seq 5, length 64
+```
 [Encrypt Data in Transit](https://docs.tigera.io/compliance/encrypt-cluster-pod-traffic)
 
 [Install Wireguard](https://www.wireguard.com/install/)

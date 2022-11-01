@@ -232,21 +232,21 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
   name: ingress-yaobank-customer
   namespace: yaobank
 spec:
   rules:
-  - host: '*.lynx.tigera.ca'
+  - host: "yaobank.template.lynx.tigera.ca"
     http:
       paths:
-      - backend:
+      - path: /
+        pathType: Prefix
+        backend:
           service:
             name: customer
             port:
               number: 80
-        path: /
-        pathType: Prefix
 EOF
 
 ```
@@ -259,10 +259,15 @@ kubectl get ingress -n yaobank
 
 ```
 NAME                       CLASS    HOSTS              ADDRESS               PORTS   AGE
-ingress-yaobank-customer   <none>   *.lynx.tigera.ca   10.0.1.30,10.0.1.31   80      34s
+ingress-yaobank-customer   <none>   yaobank.template.lynx.tigera.ca   10.0.1.30,10.0.1.31   80      34s
+```
+The ingress is created with a generic hostname, but we must match the name used when the lab was deployed, so we will patch it with the command below (substitute the keywork LABNAME with the name of your lab):
+
+```
+kubectl patch ingress ingress-yaobank-customer -n yaobank --type='json' -p='[{"op": "replace", "path":"/spec/rules/0/host", "value":"yaobank.<LABNAME>.lynx.tigera.ca"}]'
 ```
 
-Check the connectivity to the customer service `https:\\<LabName>.lynx.tigera.ca` via your browser. 
+Check the connectivity to the customer service `https:\\yaobank<LabName>.lynx.tigera.ca` via your browser. 
 
 ![yaobank](img/ingress-resource.PNG)
 

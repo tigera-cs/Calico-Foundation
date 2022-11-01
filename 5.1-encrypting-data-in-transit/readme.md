@@ -138,6 +138,23 @@ Run the following commands on **both** worker1 and worker2 to see the flow of tr
 ```bash
 sudo tcpdump -i wireguard.cali host 10.48.0.101
 ```
+On the bastion host, exec into the pod-1 and ping the pod-2's IP address (10.48.0.217 - This IP might be different in your cluster).
+```bash
+kubectl exec -it pod-1 -- bash
+```
+```bash
+bash-5.1# ping -c5 10.48.0.217
+PING 10.48.0.217 (10.48.0.217) 56(84) bytes of data.
+64 bytes from 10.48.0.217: icmp_seq=1 ttl=62 time=0.930 ms
+64 bytes from 10.48.0.217: icmp_seq=2 ttl=62 time=0.605 ms
+64 bytes from 10.48.0.217: icmp_seq=3 ttl=62 time=0.502 ms
+64 bytes from 10.48.0.217: icmp_seq=4 ttl=62 time=0.635 ms
+64 bytes from 10.48.0.217: icmp_seq=5 ttl=62 time=0.536 ms
+
+--- 10.48.0.217 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4079ms
+rtt min/avg/max/mdev = 0.502/0.641/0.930/0.151 ms
+```
 
 [Encrypt Data in Transit](https://docs.tigera.io/compliance/encrypt-cluster-pod-traffic)
 

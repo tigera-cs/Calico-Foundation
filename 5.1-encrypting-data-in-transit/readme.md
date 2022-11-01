@@ -124,7 +124,7 @@ spec:
 ---
 EOF
 ```
-Validate pods got scheduled in the correct nodes:
+Validate that the pods got scheduled in the correct nodes:
 ```bash
 kubectl get pods -o wide
 ```
@@ -133,7 +133,11 @@ NAME    READY   STATUS    RESTARTS   AGE   IP            NODE                   
 pod-1   1/1     Running   0          9s    10.48.0.101   ip-10-0-1-30.ca-central-1.compute.internal   <none>           <none>
 pod-2   1/1     Running   0          9s    10.48.0.217   ip-10-0-1-31.ca-central-1.compute.internal   <none>           <none>
 ```
-
+Open two new tabs in the browser and use the bastion host to login to SSH to worker1 and worker2 nodes.
+Run the following commands on **both** worker1 and worker2 to see the flow of traffic on wiregaurd interface tunnel:
+```bash
+sudo tcpdump -i wireguard.cali host 10.48.0.101
+```
 
 [Encrypt Data in Transit](https://docs.tigera.io/compliance/encrypt-cluster-pod-traffic)
 

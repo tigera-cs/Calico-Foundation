@@ -93,7 +93,36 @@ peer: lDSws3G/G1KP76BGGRpVSXBnTt5N6FCqOodzTUUWs0I=
 
 ## See WireGuard in Action
 
+For verifying the encryption we will spin up two pods (pod-1 in worker1 and pod-2 in worker2), initiate the traffic between the two pods and view the traffic by using the tcpdump command.
 
+Create pod-1 and pod-2 on respective worker nodes:
+```bash
+kubectl apply -f -<<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-1
+  name: pod-1
+spec:
+  containers:
+  - image: praqma/network-multitool
+    name: pod-1
+  nodeName: ip-10-0-1-30.ca-central-1.compute.internal
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-2
+  name: pod-2
+spec:
+  containers:
+  - image: praqma/network-multitool
+    name: pod-2
+  nodeName: ip-10-0-1-31.ca-central-1.compute.internal
+EOF
+```
 
 [Encrypt Data in Transit](https://docs.tigera.io/compliance/encrypt-cluster-pod-traffic)
 
